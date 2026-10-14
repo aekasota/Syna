@@ -1,0 +1,43 @@
+
+  configuration:
+    --prefix=/ffmpeg
+    --target-os=mingw32
+    --arch=x86_64
+    --cross-prefix=x86_64-w64-mingw32-
+    --cc=x86_64-w64-mingw32-clang
+    --cxx=x86_64-w64-mingw32-clang++
+    --pkg-config=pkg-config --pkg-config-flags=--static
+    --extra-cflags='-I/tmp/syna-ffmpeg-build/prefix/include -O2 -ffile-prefix-map=/tmp/syna-ffmpeg-build=. -fstack-protector-strong -D_FORTIFY_SOURCE=2'
+    --extra-ldflags='-L/tmp/syna-ffmpeg-build/prefix/lib -static -fstack-protector-strong -Wl,--no-insert-timestamp'
+    --extra-version=g330caae0c1-syna
+    --disable-autodetect
+    --enable-shared
+    --disable-static
+    --disable-debug
+    --disable-doc
+    --disable-ffplay
+    --enable-w32threads
+    --enable-d3d11va
+    --enable-d3d12va
+    --enable-dxva2
+    --enable-mediafoundation
+    --enable-schannel
+    --enable-ffnvcodec
+    --enable-cuda
+    --enable-cuvid
+    --enable-nvdec
+    --enable-nvenc
+    --enable-amf
+    --enable-libvpl
+    --enable-zlib
+    --enable-libdav1d
+    --enable-libopus
+    --enable-libmp3lame
+    --enable-libopenh264
+    --enable-libkvazaar
+    --enable-libsvtav1
+    --enable-libvpx
+    --disable-filter=perlin
+    --disable-filter=codecview
+
+Exiting with exit code 0

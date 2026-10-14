@@ -1,0 +1,366 @@
+<UserControl
+    x:Class="Syna.Views.TrimSheet"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Syna.Controls"
+    xmlns:v="using:Syna.Views">
+
+    <UserControl.Resources>
+        <Style x:Key="FieldLabel" TargetType="TextBlock" BasedOn="{StaticResource SmallText}">
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="SegmentGroup" TargetType="Border">
+            <Setter Property="Background" Value="{ThemeResource Surface1Brush}" />
+            <Setter Property="BorderBrush" Value="{ThemeResource BorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="{StaticResource RadiusMedium}" />
+            <Setter Property="Padding" Value="2" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid x:Name="Scrim" Background="{ThemeResource ShadeBrush}" Visibility="{x:Bind Trim.IsOpen, Mode=OneWay}" KeyDown="OnKeyDown">
+        <Border Width="600" Margin="24" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{ThemeResource Surface2Brush}"
+                BorderBrush="{ThemeResource BorderStrongBrush}" BorderThickness="1" CornerRadius="{StaticResource RadiusLarge}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalScrollMode="Disabled">
+                <StackPanel Spacing="16" Padding="22,18,22,18">
+                    <Grid>
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Trim clip" Style="{StaticResource SubtitleText}" />
+                            <TextBlock Text="{x:Bind Trim.RangeText, Mode=OneWay}" Style="{StaticResource SmallText}" Typography.NumeralAlignment="Tabular" />
+                        </StackPanel>
+                        <Button Style="{StaticResource IconButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Click="OnCloseClick"
+                                Visibility="{x:Bind v:Ui.Hide(Trim.IsRunning), Mode=OneWay}" AutomationProperties.Name="Close" ToolTipService.ToolTip="Close (Esc)">
+                            <c:Icon Kind="Close" Width="14" Height="14" />
+                        </Button>
+                    </Grid>
+
+                    <!-- Choose -->
+                    <StackPanel Spacing="14" Visibility="{x:Bind Trim.IsEditing, Mode=OneWay}">
+                        <Border Style="{StaticResource SegmentGroup}" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton Style="{StaticResource SegmentButton}" Content="Quick Cut" GroupName="trimmode" IsChecked="{x:Bind Trim.IsQuick, Mode=TwoWay}" />
+                                <RadioButton Style="{StaticResource SegmentButton}" Content="Smart Cut" GroupName="trimmode" IsChecked="{x:Bind Trim.IsSmart, Mode=TwoWay}" />
+                                <RadioButton Style="{StaticResource SegmentButton}" Content="Exact Cut" GroupName="trimmode" IsChecked="{x:Bind Trim.IsExact, Mode=TwoWay}" />
+                            </StackPanel>
+                        </Border>
+                        <TextBlock Text="{x:Bind Trim.Explanation, Mode=OneWay}" Style="{StaticResource SmallText}" TextWrapping="Wrap" LineHeight="18" />
+
+                        <!-- Output: profile and audio arrangement -->
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="OUTPUT" Style="{StaticResource SectionLabel}" />
+                            <Border Style="{StaticResource SegmentGroup}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <RadioButton Style="{StaticResource SegmentButton}" HorizontalAlignment="Stretch" Content="Original" GroupName="trimprofile"
+                                                 IsChecked="{x:Bind Trim.IsOriginalProfile, Mode=TwoWay}"
+                                                 ToolTipService.ToolTip="Copies the video whenever the cut allows; re-encoded parts keep the source's codec, size and frame timing" />
+                                    <RadioButton Grid.Column="1" Style="{StaticResource SegmentButton}" HorizontalAlignment="Stretch" Content="High Quality" GroupName="trimprofile"
+                                                 IsChecked="{x:Bind Trim.IsHighQualityProfile, Mode=TwoWay}" ToolTipService.ToolTip="Re-encodes at near-transparent quality (CQ 18)" />
+                                    <RadioButton Grid.Column="2" Style="{StaticResource SegmentButton}" HorizontalAlignment="Stretch" Content="Balanced" GroupName="trimprofile"
+                                                 IsChecked="{x:Bind Trim.IsBalancedProfile, Mode=TwoWay}" ToolTipService.ToolTip="Re-encodes at good quality and a moderate size (CQ 23)" />
+                                    <RadioButton Grid.Column="3" Style="{StaticResource SegmentButton}" HorizontalAlignment="Stretch" Content="Smaller File" GroupName="trimprofile"
+                                                 IsChecked="{x:Bind Trim.IsSmallerProfile, Mode=TwoWay}" ToolTipService.ToolTip="Re-encodes for a small file at acceptable quality (CQ 28)" />
+                                    <RadioButton Grid.Column="4" Style="{StaticResource SegmentButton}" HorizontalAlignment="Stretch" Content="Custom" GroupName="trimprofile"
+                                                 IsChecked="{x:Bind Trim.IsCustomProfile, Mode=TwoWay}" ToolTipService.ToolTip="Choose the codec, size, frame rate, quality and audio format" />
+                                </Grid>
+                            </Border>
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Style="{StaticResource SegmentGroup}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <RadioButton Style="{StaticResource SegmentButton}" Content="Mix into one track" GroupName="trimaudio" IsChecked="{x:Bind Trim.IsMix, Mode=TwoWay}"
+                                                     IsEnabled="{x:Bind Trim.CanArrangeAudio, Mode=OneWay}" ToolTipService.ToolTip="Every audio track mixed into one, as the mixer plays them" />
+                                        <RadioButton Style="{StaticResource SegmentButton}" Content="Keep separate tracks" GroupName="trimaudio" IsChecked="{x:Bind Trim.IsSeparate, Mode=TwoWay}"
+                                                     IsEnabled="{x:Bind Trim.CanArrangeAudio, Mode=OneWay}" ToolTipService.ToolTip="Every audio track kept as its own track" />
+                                    </StackPanel>
+                                </Border>
+                                <TextBlock Grid.Column="1" Text="{x:Bind Trim.ArrangementHint, Mode=OneWay}" Style="{StaticResource CaptionText}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- Custom profile -->
+                        <Border Visibility="{x:Bind Trim.IsCustomProfile, Mode=OneWay}" Background="{ThemeResource Surface1Brush}" BorderBrush="{ThemeResource BorderBrush}"
+                                BorderThickness="1" CornerRadius="{StaticResource RadiusMedium}" Padding="14,12">
+                            <Grid ColumnSpacing="10" RowSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="82" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="82" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Text="Video" Style="{StaticResource FieldLabel}" />
+                                <Border Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource SegmentGroup}" Background="{ThemeResource Surface2Brush}" HorizontalAlignment="Left">
+                                    <StackPanel Orientation="Horizontal">
+                                        <RadioButton Style="{StaticResource SegmentButton}" Content="Copy when possible" GroupName="customvideo" IsChecked="{x:Bind Trim.IsCustomCopy, Mode=TwoWay}"
+                                                     ToolTipService.ToolTip="Like Original: the cut mode decides what is copied" />
+                                        <RadioButton Style="{StaticResource SegmentButton}" Content="Re-encode" GroupName="customvideo" IsChecked="{x:Bind Trim.IsCustomEncode, Mode=TwoWay}" />
+                                        <RadioButton Style="{StaticResource SegmentButton}" Content="Lossless" GroupName="customvideo" IsChecked="{x:Bind Trim.IsCustomLossless, Mode=TwoWay}"
+                                                     ToolTipService.ToolTip="Re-encodes so every frame decodes to the source's pixels; very large files" />
+                                    </StackPanel>
+                                </Border>
+
+                                <TextBlock Grid.Row="1" Text="Codec" Style="{StaticResource FieldLabel}" Visibility="{x:Bind v:Ui.Show(Trim.CustomPicksCodec), Mode=OneWay}" />
+                                <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource ChoiceButton}" Click="OnCodecClick" AutomationProperties.Name="Video codec"
+                                        Visibility="{x:Bind v:Ui.Show(Trim.CustomPicksCodec), Mode=OneWay}">
+                                    <Grid ColumnSpacing="6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{x:Bind Trim.CustomCodecLabel, Mode=OneWay}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                        <c:Icon Grid.Column="1" Kind="ChevronDown" Width="12" Height="12" Foreground="{ThemeResource TextSecondaryBrush}" />
+                                    </Grid>
+                                </Button>
+                                <TextBlock Grid.Row="1" Grid.Column="2" Text="Speed" Style="{StaticResource FieldLabel}" Visibility="{x:Bind v:Ui.Show(Trim.CustomEncodes), Mode=OneWay}" />
+                                <Button Grid.Row="1" Grid.Column="3" Style="{StaticResource ChoiceButton}" Click="OnSpeedClick" AutomationProperties.Name="Encoder speed"
+                                        Visibility="{x:Bind v:Ui.Show(Trim.CustomEncodes), Mode=OneWay}"
+                                        ToolTipService.ToolTip="Slower presets compress better: a smaller file at the same quality">
+                                    <Grid ColumnSpacing="6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{x:Bind Trim.CustomSpeedLabel, Mode=OneWay}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                        <c:Icon Grid.Column="1" Kind="ChevronDown" Width="12" Height="12" Foreground="{ThemeResource TextSecondaryBrush}" />
+                                    </Grid>
+                                </Button>
+
+                                <TextBlock Grid.Row="2" Text="Resolution" Style="{StaticResource FieldLabel}" Visibility="{x:Bind v:Ui.Show(Trim.CustomEncodes), Mode=OneWay}" />
+                                <Button Grid.Row="2" Grid.Column="1" Style="{StaticResource ChoiceButton}" Click="OnHeightClick" AutomationProperties.Name="Resolution"
+                                        Visibility="{x:Bind v:Ui.Show(Trim.CustomEncodes), Mode=OneWay}">
+                                    <Grid ColumnSpacing="6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{x:Bind Trim.CustomHeightLabel, Mode=OneWay}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                        <c:Icon Grid.Column="1" Kind="ChevronDown" Width="12" Height="12" Foreground="{ThemeResource TextSecondaryBrush}" />
+                                    </Grid>
+                                </Button>
+                                <TextBlock Grid.Row="2" Grid.Column="2" Text="Frame rate" Style="{StaticResource FieldLabel}" Visibility="{x:Bind v:Ui.Show(Trim.CustomEncodes), Mode=OneWay}" />
+                                <Button Grid.Row="2" Grid.Column="3" Style="{StaticResource ChoiceButton}" Click="OnFpsClick" AutomationProperties.Name="Frame rate"
+                                        Visibility="{x:Bind v:Ui.Show(Trim.CustomEncodes), Mode=OneWay}"
+                                        ToolTipService.ToolTip="Same as source keeps every frame at its own time; a lower rate drops frames evenly">
+                                    <Grid ColumnSpacing="6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{x:Bind Trim.CustomFpsLabel, Mode=OneWay}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                        <c:Icon Grid.Column="1" Kind="ChevronDown" Width="12" Height="12" Foreground="{ThemeResource TextSecondaryBrush}" />
+                                    </Grid>
+                                </Button>
+
+                                <TextBlock Grid.Row="3" Text="Quality" Style="{StaticResource FieldLabel}" Visibility="{x:Bind v:Ui.Show(Trim.CustomEncodes), Mode=OneWay}" />
+                                <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" ColumnSpacing="12" Visibility="{x:Bind v:Ui.Show(Trim.CustomEncodes), Mode=OneWay}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource SegmentGroup}" Background="{ThemeResource Surface2Brush}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <RadioButton Style="{StaticResource SegmentButton}" Content="Constant quality" GroupName="customrate" IsChecked="{x:Bind Trim.CustomUseQuality, Mode=TwoWay}"
+                                                         ToolTipService.ToolTip="Same quality throughout; the size follows the content" />
+                                            <RadioButton Style="{StaticResource SegmentButton}" Content="Bitrate" GroupName="customrate" IsChecked="{x:Bind Trim.CustomUseBitrate, Mode=TwoWay}"
+                                                         ToolTipService.ToolTip="An average bitrate, optionally capped: a predictable size" />
+                                        </StackPanel>
+                                    </Border>
+                                    <Grid Grid.Column="1" ColumnSpacing="10" Visibility="{x:Bind Trim.CustomUseQuality, Mode=OneWay}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Slider Minimum="10" Maximum="40" StepFrequency="1" Value="{x:Bind Trim.CustomQuality, Mode=TwoWay}" VerticalAlignment="Center"
+                                                AutomationProperties.Name="Constant quality (lower is better)" ToolTipService.ToolTip="Lower values: better quality, larger file" />
+                                        <TextBlock Grid.Column="1" Text="{x:Bind Trim.CustomQualityText, Mode=OneWay}" Style="{StaticResource SmallText}" Foreground="{ThemeResource TextPrimaryBrush}"
+                                                   VerticalAlignment="Center" Typography.NumeralAlignment="Tabular" MinWidth="40" />
+                                    </Grid>
+                                    <Grid Grid.Column="1" ColumnSpacing="6" Visibility="{x:Bind Trim.CustomUseBitrate, Mode=OneWay}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Style="{StaticResource FieldTextBox}" FontSize="12" Text="{x:Bind Trim.CustomBitrateText, Mode=TwoWay}" InputScope="Number"
+                                                 AutomationProperties.Name="Average bitrate in megabits per second" PlaceholderText="Average" />
+                                        <TextBlock Grid.Column="1" Text="Mb/s, max" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Grid.Column="2" Style="{StaticResource FieldTextBox}" FontSize="12" Text="{x:Bind Trim.CustomMaxBitrateText, Mode=TwoWay}" InputScope="Number"
+                                                 AutomationProperties.Name="Peak bitrate in megabits per second" PlaceholderText="None" />
+                                        <TextBlock Grid.Column="3" Text="Mb/s" Style="{StaticResource FieldLabel}" />
+                                    </Grid>
+                                </Grid>
+
+                                <TextBlock Grid.Row="4" Text="Audio" Style="{StaticResource FieldLabel}" />
+                                <Button Grid.Row="4" Grid.Column="1" Style="{StaticResource ChoiceButton}" Click="OnAudioCodecClick" AutomationProperties.Name="Audio codec"
+                                        ToolTipService.ToolTip="Automatic copies tracks when nothing requires encoding">
+                                    <Grid ColumnSpacing="6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{x:Bind Trim.CustomAudioCodecLabel, Mode=OneWay}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                        <c:Icon Grid.Column="1" Kind="ChevronDown" Width="12" Height="12" Foreground="{ThemeResource TextSecondaryBrush}" />
+                                    </Grid>
+                                </Button>
+                                <TextBlock Grid.Row="4" Grid.Column="2" Text="Bitrate" Style="{StaticResource FieldLabel}" Visibility="{x:Bind v:Ui.Show(Trim.CustomAudioLossy), Mode=OneWay}" />
+                                <Button Grid.Row="4" Grid.Column="3" Style="{StaticResource ChoiceButton}" Click="OnAudioBitrateClick" AutomationProperties.Name="Audio bitrate"
+                                        Visibility="{x:Bind v:Ui.Show(Trim.CustomAudioLossy), Mode=OneWay}">
+                                    <Grid ColumnSpacing="6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{x:Bind Trim.CustomAudioBitrateLabel, Mode=OneWay}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                        <c:Icon Grid.Column="1" Kind="ChevronDown" Width="12" Height="12" Foreground="{ThemeResource TextSecondaryBrush}" />
+                                    </Grid>
+                                </Button>
+
+                                <TextBlock Grid.Row="5" Text="Sample rate" Style="{StaticResource FieldLabel}" />
+                                <Button Grid.Row="5" Grid.Column="1" Style="{StaticResource ChoiceButton}" Click="OnSampleRateClick" AutomationProperties.Name="Audio sample rate">
+                                    <Grid ColumnSpacing="6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{x:Bind Trim.CustomSampleRateLabel, Mode=OneWay}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                        <c:Icon Grid.Column="1" Kind="ChevronDown" Width="12" Height="12" Foreground="{ThemeResource TextSecondaryBrush}" />
+                                    </Grid>
+                                </Button>
+                                <TextBlock Grid.Row="5" Grid.Column="2" Text="Channels" Style="{StaticResource FieldLabel}" />
+                                <Button Grid.Row="5" Grid.Column="3" Style="{StaticResource ChoiceButton}" Click="OnChannelsClick" AutomationProperties.Name="Audio channels">
+                                    <Grid ColumnSpacing="6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{x:Bind Trim.CustomChannelsLabel, Mode=OneWay}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                        <c:Icon Grid.Column="1" Kind="ChevronDown" Width="12" Height="12" Foreground="{ThemeResource TextSecondaryBrush}" />
+                                    </Grid>
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                        <!-- What will actually happen to this clip -->
+                        <StackPanel Spacing="8">
+                            <Grid ColumnSpacing="12" RowSpacing="5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="44" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="VIDEO" Style="{StaticResource SectionLabel}" VerticalAlignment="Top" Margin="0,2,0,0" />
+                                <TextBlock Grid.Column="1" Text="{x:Bind Trim.PlanVideo, Mode=OneWay}" Style="{StaticResource SmallText}" Foreground="{ThemeResource TextPrimaryBrush}"
+                                           TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+                                <TextBlock Grid.Row="1" Text="AUDIO" Style="{StaticResource SectionLabel}" VerticalAlignment="Top" Margin="0,2,0,0" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind Trim.PlanAudio, Mode=OneWay}" Style="{StaticResource SmallText}" Foreground="{ThemeResource TextPrimaryBrush}"
+                                           TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+                            </Grid>
+                            <Grid ColumnSpacing="8" Visibility="{x:Bind Trim.HasPlanNotes, Mode=OneWay}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <c:Icon Kind="Info" Width="14" Height="14" Foreground="{ThemeResource TextTertiaryBrush}" VerticalAlignment="Top" Margin="0,1,0,0" />
+                                <TextBlock Grid.Column="1" Text="{x:Bind Trim.PlanNotes, Mode=OneWay}" Style="{StaticResource CaptionText}" TextWrapping="Wrap" LineHeight="16" />
+                            </Grid>
+                            <Grid ColumnSpacing="8" Visibility="{x:Bind Trim.HasBlocker, Mode=OneWay}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <c:Icon Kind="Warning" Width="14" Height="14" Foreground="{ThemeResource WarningBrush}" VerticalAlignment="Top" Margin="0,1,0,0" />
+                                <TextBlock Grid.Column="1" Text="{x:Bind Trim.Blocker, Mode=OneWay}" Style="{StaticResource SmallText}" Foreground="{ThemeResource TextPrimaryBrush}" TextWrapping="Wrap" />
+                            </Grid>
+                        </StackPanel>
+
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="SAVE AS" Style="{StaticResource SectionLabel}" />
+                            <TextBox Style="{StaticResource FieldTextBox}" Text="{x:Bind Trim.OutputName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     AutomationProperties.Name="File name" />
+                            <Grid ColumnSpacing="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{x:Bind Trim.OutputFolderName, Mode=OneWay}" Style="{StaticResource CaptionText}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                           ToolTipService.ToolTip="{x:Bind Trim.OutputFolder, Mode=OneWay}" />
+                                <Button Grid.Column="1" Style="{StaticResource QuietButton}" Content="Use clip folder" Click="OnUseClipFolderClick" FontSize="12"
+                                        Visibility="{x:Bind Trim.CanUseClipFolder, Mode=OneWay}" ToolTipService.ToolTip="Save next to each source clip" />
+                                <Button Grid.Column="2" Style="{StaticResource QuietButton}" Content="Change folder" Click="OnChangeFolderClick" FontSize="12"
+                                        ToolTipService.ToolTip="The folder is kept for the next clips once a trim is saved there" />
+                            </Grid>
+                            <TextBlock Text="{x:Bind Trim.FolderNote, Mode=OneWay}" Style="{StaticResource CaptionText}" Foreground="{ThemeResource WarningBrush}" TextWrapping="Wrap"
+                                       Visibility="{x:Bind Trim.HasFolderNote, Mode=OneWay}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                            <Button Style="{StaticResource SecondaryButton}" Content="Cancel" Click="OnCloseClick" />
+                            <Button x:Name="SaveButton" Style="{StaticResource AccentButton}" Content="Save clip" Click="OnSaveClick" IsEnabled="{x:Bind Trim.CanSave, Mode=OneWay}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Running -->
+                    <StackPanel Spacing="10" Visibility="{x:Bind Trim.IsRunning, Mode=OneWay}">
+                        <TextBlock Text="Writing and checking the new clip…" Style="{StaticResource SmallText}" />
+                        <ProgressBar Minimum="0" Maximum="1" Value="{x:Bind Trim.Progress, Mode=OneWay}" />
+                        <Button Style="{StaticResource SecondaryButton}" Content="Cancel" Click="OnCancelRunClick" HorizontalAlignment="Right" />
+                    </StackPanel>
+
+                    <!-- Result -->
+                    <StackPanel Spacing="10" Visibility="{x:Bind Trim.HasResult, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <c:Icon Kind="Check" Foreground="{ThemeResource SuccessBrush}" VerticalAlignment="Center" />
+                            <TextBlock Text="{x:Bind Trim.ResultTitle, Mode=OneWay}" Style="{StaticResource BodyText}" FontWeight="SemiBold" />
+                        </StackPanel>
+                        <ItemsControl ItemsSource="{x:Bind Trim.ResultLines, Mode=OneWay}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <TextBlock Text="{x:Bind}" Style="{StaticResource SmallText}" TextWrapping="Wrap" Margin="0,0,0,4" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                            <Button Style="{StaticResource SecondaryButton}" Content="Reveal in Explorer" Click="OnRevealClick" />
+                            <Button Style="{StaticResource SecondaryButton}" Content="Open clip" Click="OnOpenResultClick" />
+                            <Button Style="{StaticResource AccentButton}" Content="Done" Click="OnCloseClick" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Error -->
+                    <StackPanel Spacing="10" Visibility="{x:Bind Trim.HasError, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <c:Icon Kind="Warning" Foreground="{ThemeResource WarningBrush}" VerticalAlignment="Top" />
+                            <TextBlock Text="{x:Bind Trim.Error, Mode=OneWay}" Style="{StaticResource SmallText}" Foreground="{ThemeResource TextPrimaryBrush}" TextWrapping="Wrap" MaxWidth="500" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                            <Button Style="{StaticResource SecondaryButton}" Content="Back" Click="OnBackClick" />
+                            <Button Style="{StaticResource AccentButton}" Content="Close" Click="OnCloseClick" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

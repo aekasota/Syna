@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # The FFmpeg DLLs, built from the pinned sources by scripts/ffmpeg/build.sh (docs/FFMPEG.md). The
+  # result depends only on scripts/ffmpeg/, so an unchanged recipe reuses the last build.
+  ffmpeg:
+    name: Build FFmpeg
+    runs-on: ubuntu-24.04
+    container: ubuntu:24.04@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Restore an FFmpeg build of this recipe
+        id: cache
+        uses: actions/cache@v6
+        with:
+          path: |
+            ffmpeg-build/*.zip
+            ffmpeg-build/source/
+          key: ffmpeg-${{ hashFiles('scripts/ffmpeg/**') }}
+
+      - name: Build FFmpeg
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          bash scripts/ffmpeg/setup-ubuntu.sh
+          bash scripts/ffmpeg/build.sh ffmpeg-build
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ffmpeg-build
+          path: |
+            ffmpeg-build/*.zip
+            ffmpeg-build/source/
+          if-no-files-found: error
+          retention-days: 14
+
+  build:
+    name: Build, test and package (Release)
+    needs: ffmpeg
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: ffmpeg-build
+          path: third_party/ffmpeg-build
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ hashFiles('**/*.csproj', 'installer/*.wixproj') }}
+          restore-keys: nuget-
+
+      - name: Build
+        shell: powershell
+        run: .\scripts\build.ps1 -Configuration Release
+
+      # Whether the FFmpeg DLLs may be redistributed with Syna (docs/FFMPEG.md).
+      - name: Check FFmpeg's licenses
+        shell: powershell
+        run: .\scripts\check-ffmpeg-license.ps1 -SourceDir third_party\ffmpeg-build\source
+
+      # The runners have no GPU and no FFmpeg command-line tool for test media, so only the native
+      # tests that need neither run here; the full suite runs locally (docs/BUILDING.md).
+      - name: Test
+        shell: powershell
+        run: .\scripts\test.ps1 -Configuration Release -NoBuild -Filter mixer_,sample_fifo
+
+      - name: Package
+        shell: powershell
+        run: .\scripts\package.ps1 -Configuration Release
+
+      - name: Install, check and uninstall the installer
+        shell: powershell
+        run: .\scripts\test-install.ps1 -Msi (Get-ChildItem artifacts\Syna-Setup-*-x64.msi).FullName
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v7
+        with:
+          name: syna-installer-${{ github.sha }}
+          path: |
+            artifacts/Syna-Setup-*-x64.msi
+            artifacts/Syna-Setup-*-x64.msi.sha256
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload install logs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: install-logs-${{ github.sha }}
+          path: artifacts/install-test/
+          if-no-files-found: ignore
+          retention-days: 14

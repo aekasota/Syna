@@ -1,0 +1,34 @@
+<Project Sdk="WixToolset.Sdk/7.0.0">
+
+  <!-- Built by scripts/package.ps1, which passes the version, the app folder and the license page. -->
+  <PropertyGroup>
+    <OutputName>Syna</OutputName>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <!-- The project's author accepted the WiX Toolset v7 Open Source Maintenance Fee EULA
+         (https://docs.firegiant.com/wix/osmf/); see docs/PACKAGING.md. -->
+    <AcceptEula>wix7</AcceptEula>
+    <ProductVersion Condition="'$(ProductVersion)' == ''">1.0.0</ProductVersion>
+    <AppDir Condition="'$(AppDir)' == ''">$(MSBuildThisFileDirectory)..\artifacts\app\</AppDir>
+    <LicenseRtf Condition="'$(LicenseRtf)' == ''">$(MSBuildThisFileDirectory)..\artifacts\installer\License.rtf</LicenseRtf>
+    <DefineConstants>ProductVersion=$(ProductVersion);LicenseRtf=$(LicenseRtf)</DefineConstants>
+    <!-- ICE03, ICE60: WinUI's DLLs list 16 languages and some of its resource files use LCIDs that
+         ICE03 does not know (sr-Latn-RS and others); e_sqlite3.dll has a version but no language.
+         The values come from the binaries, and only matter when same-version files are compared,
+         which a major upgrade that removes the old version first never does.
+         ICE57: the shortcut and its HKMU key are per-user or per-machine together; ICE57 does not
+         model dual-purpose packages.
+         ICE61: expected with AllowSameVersionUpgrades. ICE69: the shortcut targets Syna.exe in
+         another component of the same feature. -->
+    <SuppressIces>ICE03;ICE57;ICE60;ICE61;ICE69</SuppressIces>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <BindPath Include="$(AppDir)" BindName="App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="7.0.0" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="7.0.0" />
+  </ItemGroup>
+
+</Project>

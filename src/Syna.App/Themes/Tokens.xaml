@@ -1,0 +1,276 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Design tokens. Every color, size and duration used by the app comes from here.
+        Dark is the primary theme; light is designed separately (not an inversion). The video stage
+        stays dark in both themes so the picture is never surrounded by bright chrome.
+    -->
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+            <Color x:Key="AppBackgroundColor">#0F1012</Color>
+            <Color x:Key="Surface1Color">#141517</Color>
+            <Color x:Key="Surface2Color">#1C1D21</Color>
+            <Color x:Key="Surface3Color">#24262A</Color>
+            <Color x:Key="StageColor">#08080A</Color>
+            <Color x:Key="HoverOverlayColor">#0FFFFFFF</Color>
+            <Color x:Key="PressedOverlayColor">#08FFFFFF</Color>
+            <Color x:Key="SelectedOverlayColor">#17FFFFFF</Color>
+            <Color x:Key="BorderColor">#14FFFFFF</Color>
+            <Color x:Key="BorderStrongColor">#24FFFFFF</Color>
+            <Color x:Key="TextPrimaryColor">#E8E8EA</Color>
+            <Color x:Key="TextSecondaryColor">#A1A3A9</Color>
+            <Color x:Key="TextTertiaryColor">#6E7178</Color>
+            <Color x:Key="TextDisabledColor">#4A4D53</Color>
+            <Color x:Key="AccentColor">#E89B3A</Color>
+            <Color x:Key="AccentHoverColor">#F2AA50</Color>
+            <Color x:Key="AccentPressedColor">#D48A2C</Color>
+            <Color x:Key="AccentTextColor">#1A1206</Color>
+            <Color x:Key="AccentSubtleColor">#2AE89B3A</Color>
+            <Color x:Key="AccentStrongTextColor">#F0AE5C</Color>
+            <Color x:Key="PlayheadColor">#F4F4F5</Color>
+            <Color x:Key="KeyframeTickColor">#38FFFFFF</Color>
+            <Color x:Key="LaneColor">#08FFFFFF</Color>
+            <Color x:Key="MeterTrackColor">#12FFFFFF</Color>
+            <Color x:Key="SuccessColor">#6CC58A</Color>
+            <Color x:Key="WarningColor">#E6C25A</Color>
+            <Color x:Key="ErrorColor">#EF6B67</Color>
+            <Color x:Key="InfoColor">#7DB3E8</Color>
+            <Color x:Key="Track1Color">#8FB2DE</Color>
+            <Color x:Key="Track2Color">#9CCB9F</Color>
+            <Color x:Key="Track3Color">#C9A3DB</Color>
+            <Color x:Key="Track4Color">#DDB38A</Color>
+            <Color x:Key="ShadeColor">#99000000</Color>
+
+            <!-- WinUI accent ramp, so built-in accent visuals follow the product accent. -->
+            <Color x:Key="SystemAccentColor">#E89B3A</Color>
+            <Color x:Key="SystemAccentColorLight1">#F0AA4E</Color>
+            <Color x:Key="SystemAccentColorLight2">#F5BC6E</Color>
+            <Color x:Key="SystemAccentColorLight3">#F8CD90</Color>
+            <Color x:Key="SystemAccentColorDark1">#D48A2C</Color>
+            <Color x:Key="SystemAccentColorDark2">#B87420</Color>
+            <Color x:Key="SystemAccentColorDark3">#955C16</Color>
+
+            <!-- Brushes are defined per theme so per-element RequestedTheme resolves them correctly. -->
+            <SolidColorBrush x:Key="AppBackgroundBrush" Color="{StaticResource AppBackgroundColor}" />
+            <SolidColorBrush x:Key="Surface1Brush" Color="{StaticResource Surface1Color}" />
+            <SolidColorBrush x:Key="Surface2Brush" Color="{StaticResource Surface2Color}" />
+            <SolidColorBrush x:Key="Surface3Brush" Color="{StaticResource Surface3Color}" />
+            <SolidColorBrush x:Key="StageBrush" Color="{StaticResource StageColor}" />
+            <SolidColorBrush x:Key="HoverOverlayBrush" Color="{StaticResource HoverOverlayColor}" />
+            <SolidColorBrush x:Key="PressedOverlayBrush" Color="{StaticResource PressedOverlayColor}" />
+            <SolidColorBrush x:Key="SelectedOverlayBrush" Color="{StaticResource SelectedOverlayColor}" />
+            <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
+            <SolidColorBrush x:Key="BorderStrongBrush" Color="{StaticResource BorderStrongColor}" />
+            <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}" />
+            <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" />
+            <SolidColorBrush x:Key="TextTertiaryBrush" Color="{StaticResource TextTertiaryColor}" />
+            <SolidColorBrush x:Key="TextDisabledBrush" Color="{StaticResource TextDisabledColor}" />
+            <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
+            <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentHoverColor}" />
+            <SolidColorBrush x:Key="AccentPressedBrush" Color="{StaticResource AccentPressedColor}" />
+            <SolidColorBrush x:Key="AccentTextBrush" Color="{StaticResource AccentTextColor}" />
+            <SolidColorBrush x:Key="AccentSubtleBrush" Color="{StaticResource AccentSubtleColor}" />
+            <SolidColorBrush x:Key="AccentStrongTextBrush" Color="{StaticResource AccentStrongTextColor}" />
+            <SolidColorBrush x:Key="PlayheadBrush" Color="{StaticResource PlayheadColor}" />
+            <SolidColorBrush x:Key="KeyframeTickBrush" Color="{StaticResource KeyframeTickColor}" />
+            <SolidColorBrush x:Key="LaneBrush" Color="{StaticResource LaneColor}" />
+            <SolidColorBrush x:Key="MeterTrackBrush" Color="{StaticResource MeterTrackColor}" />
+            <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}" />
+            <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}" />
+            <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}" />
+            <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource InfoColor}" />
+            <SolidColorBrush x:Key="ShadeBrush" Color="{StaticResource ShadeColor}" />
+            <SolidColorBrush x:Key="Track1Brush" Color="{StaticResource Track1Color}" />
+            <SolidColorBrush x:Key="Track2Brush" Color="{StaticResource Track2Color}" />
+            <SolidColorBrush x:Key="Track3Brush" Color="{StaticResource Track3Color}" />
+            <SolidColorBrush x:Key="Track4Brush" Color="{StaticResource Track4Color}" />
+        </ResourceDictionary>
+
+        <ResourceDictionary x:Key="Light">
+            <Color x:Key="AppBackgroundColor">#ECECEA</Color>
+            <Color x:Key="Surface1Color">#F6F6F4</Color>
+            <Color x:Key="Surface2Color">#FFFFFF</Color>
+            <Color x:Key="Surface3Color">#F0F0EE</Color>
+            <Color x:Key="StageColor">#161618</Color>
+            <Color x:Key="HoverOverlayColor">#0B000000</Color>
+            <Color x:Key="PressedOverlayColor">#06000000</Color>
+            <Color x:Key="SelectedOverlayColor">#12000000</Color>
+            <Color x:Key="BorderColor">#17000000</Color>
+            <Color x:Key="BorderStrongColor">#29000000</Color>
+            <Color x:Key="TextPrimaryColor">#1C1D1F</Color>
+            <Color x:Key="TextSecondaryColor">#56595F</Color>
+            <Color x:Key="TextTertiaryColor">#878A90</Color>
+            <Color x:Key="TextDisabledColor">#B4B6BA</Color>
+            <Color x:Key="AccentColor">#BF7317</Color>
+            <Color x:Key="AccentHoverColor">#AD6610</Color>
+            <Color x:Key="AccentPressedColor">#99590C</Color>
+            <Color x:Key="AccentTextColor">#FFFFFF</Color>
+            <Color x:Key="AccentSubtleColor">#26BF7317</Color>
+            <Color x:Key="AccentStrongTextColor">#A15F0F</Color>
+            <Color x:Key="PlayheadColor">#1C1D1F</Color>
+            <Color x:Key="KeyframeTickColor">#33000000</Color>
+            <Color x:Key="LaneColor">#08000000</Color>
+            <Color x:Key="MeterTrackColor">#12000000</Color>
+            <Color x:Key="SuccessColor">#2F8F53</Color>
+            <Color x:Key="WarningColor">#9A770C</Color>
+            <Color x:Key="ErrorColor">#C9423E</Color>
+            <Color x:Key="InfoColor">#3D78B8</Color>
+            <Color x:Key="Track1Color">#4C7BB8</Color>
+            <Color x:Key="Track2Color">#4E9257</Color>
+            <Color x:Key="Track3Color">#9662AD</Color>
+            <Color x:Key="Track4Color">#B07A45</Color>
+            <Color x:Key="ShadeColor">#66000000</Color>
+
+            <Color x:Key="SystemAccentColor">#BF7317</Color>
+            <Color x:Key="SystemAccentColorLight1">#D08528</Color>
+            <Color x:Key="SystemAccentColorLight2">#DD9A45</Color>
+            <Color x:Key="SystemAccentColorLight3">#E8B36B</Color>
+            <Color x:Key="SystemAccentColorDark1">#AD6610</Color>
+            <Color x:Key="SystemAccentColorDark2">#99590C</Color>
+            <Color x:Key="SystemAccentColorDark3">#7F4A0A</Color>
+
+            <SolidColorBrush x:Key="AppBackgroundBrush" Color="{StaticResource AppBackgroundColor}" />
+            <SolidColorBrush x:Key="Surface1Brush" Color="{StaticResource Surface1Color}" />
+            <SolidColorBrush x:Key="Surface2Brush" Color="{StaticResource Surface2Color}" />
+            <SolidColorBrush x:Key="Surface3Brush" Color="{StaticResource Surface3Color}" />
+            <SolidColorBrush x:Key="StageBrush" Color="{StaticResource StageColor}" />
+            <SolidColorBrush x:Key="HoverOverlayBrush" Color="{StaticResource HoverOverlayColor}" />
+            <SolidColorBrush x:Key="PressedOverlayBrush" Color="{StaticResource PressedOverlayColor}" />
+            <SolidColorBrush x:Key="SelectedOverlayBrush" Color="{StaticResource SelectedOverlayColor}" />
+            <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
+            <SolidColorBrush x:Key="BorderStrongBrush" Color="{StaticResource BorderStrongColor}" />
+            <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}" />
+            <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" />
+            <SolidColorBrush x:Key="TextTertiaryBrush" Color="{StaticResource TextTertiaryColor}" />
+            <SolidColorBrush x:Key="TextDisabledBrush" Color="{StaticResource TextDisabledColor}" />
+            <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
+            <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentHoverColor}" />
+            <SolidColorBrush x:Key="AccentPressedBrush" Color="{StaticResource AccentPressedColor}" />
+            <SolidColorBrush x:Key="AccentTextBrush" Color="{StaticResource AccentTextColor}" />
+            <SolidColorBrush x:Key="AccentSubtleBrush" Color="{StaticResource AccentSubtleColor}" />
+            <SolidColorBrush x:Key="AccentStrongTextBrush" Color="{StaticResource AccentStrongTextColor}" />
+            <SolidColorBrush x:Key="PlayheadBrush" Color="{StaticResource PlayheadColor}" />
+            <SolidColorBrush x:Key="KeyframeTickBrush" Color="{StaticResource KeyframeTickColor}" />
+            <SolidColorBrush x:Key="LaneBrush" Color="{StaticResource LaneColor}" />
+            <SolidColorBrush x:Key="MeterTrackBrush" Color="{StaticResource MeterTrackColor}" />
+            <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}" />
+            <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}" />
+            <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}" />
+            <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource InfoColor}" />
+            <SolidColorBrush x:Key="ShadeBrush" Color="{StaticResource ShadeColor}" />
+            <SolidColorBrush x:Key="Track1Brush" Color="{StaticResource Track1Color}" />
+            <SolidColorBrush x:Key="Track2Brush" Color="{StaticResource Track2Color}" />
+            <SolidColorBrush x:Key="Track3Brush" Color="{StaticResource Track3Color}" />
+            <SolidColorBrush x:Key="Track4Brush" Color="{StaticResource Track4Color}" />
+        </ResourceDictionary>
+
+        <ResourceDictionary x:Key="HighContrast">
+            <Color x:Key="AppBackgroundColor">#000000</Color>
+            <Color x:Key="Surface1Color">#000000</Color>
+            <Color x:Key="Surface2Color">#000000</Color>
+            <Color x:Key="Surface3Color">#000000</Color>
+            <Color x:Key="StageColor">#000000</Color>
+            <Color x:Key="HoverOverlayColor">#33FFFFFF</Color>
+            <Color x:Key="PressedOverlayColor">#22FFFFFF</Color>
+            <Color x:Key="SelectedOverlayColor">#44FFFFFF</Color>
+            <Color x:Key="BorderColor">#FFFFFF</Color>
+            <Color x:Key="BorderStrongColor">#FFFFFF</Color>
+            <Color x:Key="TextPrimaryColor">#FFFFFF</Color>
+            <Color x:Key="TextSecondaryColor">#FFFFFF</Color>
+            <Color x:Key="TextTertiaryColor">#FFFFFF</Color>
+            <Color x:Key="TextDisabledColor">#3FF23F</Color>
+            <Color x:Key="AccentColor">#FFFF00</Color>
+            <Color x:Key="AccentHoverColor">#FFFF00</Color>
+            <Color x:Key="AccentPressedColor">#FFFF00</Color>
+            <Color x:Key="AccentTextColor">#000000</Color>
+            <Color x:Key="AccentSubtleColor">#55FFFF00</Color>
+            <Color x:Key="AccentStrongTextColor">#FFFF00</Color>
+            <Color x:Key="PlayheadColor">#FFFFFF</Color>
+            <Color x:Key="KeyframeTickColor">#FFFFFF</Color>
+            <Color x:Key="LaneColor">#000000</Color>
+            <Color x:Key="MeterTrackColor">#444444</Color>
+            <Color x:Key="SuccessColor">#3FF23F</Color>
+            <Color x:Key="WarningColor">#FFFF00</Color>
+            <Color x:Key="ErrorColor">#FF6060</Color>
+            <Color x:Key="InfoColor">#8FD8FF</Color>
+            <Color x:Key="Track1Color">#8FD8FF</Color>
+            <Color x:Key="Track2Color">#3FF23F</Color>
+            <Color x:Key="Track3Color">#FF80FF</Color>
+            <Color x:Key="Track4Color">#FFFF00</Color>
+            <Color x:Key="ShadeColor">#CC000000</Color>
+
+            <SolidColorBrush x:Key="AppBackgroundBrush" Color="{StaticResource AppBackgroundColor}" />
+            <SolidColorBrush x:Key="Surface1Brush" Color="{StaticResource Surface1Color}" />
+            <SolidColorBrush x:Key="Surface2Brush" Color="{StaticResource Surface2Color}" />
+            <SolidColorBrush x:Key="Surface3Brush" Color="{StaticResource Surface3Color}" />
+            <SolidColorBrush x:Key="StageBrush" Color="{StaticResource StageColor}" />
+            <SolidColorBrush x:Key="HoverOverlayBrush" Color="{StaticResource HoverOverlayColor}" />
+            <SolidColorBrush x:Key="PressedOverlayBrush" Color="{StaticResource PressedOverlayColor}" />
+            <SolidColorBrush x:Key="SelectedOverlayBrush" Color="{StaticResource SelectedOverlayColor}" />
+            <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
+            <SolidColorBrush x:Key="BorderStrongBrush" Color="{StaticResource BorderStrongColor}" />
+            <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}" />
+            <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" />
+            <SolidColorBrush x:Key="TextTertiaryBrush" Color="{StaticResource TextTertiaryColor}" />
+            <SolidColorBrush x:Key="TextDisabledBrush" Color="{StaticResource TextDisabledColor}" />
+            <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
+            <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentHoverColor}" />
+            <SolidColorBrush x:Key="AccentPressedBrush" Color="{StaticResource AccentPressedColor}" />
+            <SolidColorBrush x:Key="AccentTextBrush" Color="{StaticResource AccentTextColor}" />
+            <SolidColorBrush x:Key="AccentSubtleBrush" Color="{StaticResource AccentSubtleColor}" />
+            <SolidColorBrush x:Key="AccentStrongTextBrush" Color="{StaticResource AccentStrongTextColor}" />
+            <SolidColorBrush x:Key="PlayheadBrush" Color="{StaticResource PlayheadColor}" />
+            <SolidColorBrush x:Key="KeyframeTickBrush" Color="{StaticResource KeyframeTickColor}" />
+            <SolidColorBrush x:Key="LaneBrush" Color="{StaticResource LaneColor}" />
+            <SolidColorBrush x:Key="MeterTrackBrush" Color="{StaticResource MeterTrackColor}" />
+            <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}" />
+            <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}" />
+            <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}" />
+            <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource InfoColor}" />
+            <SolidColorBrush x:Key="ShadeBrush" Color="{StaticResource ShadeColor}" />
+            <SolidColorBrush x:Key="Track1Brush" Color="{StaticResource Track1Color}" />
+            <SolidColorBrush x:Key="Track2Brush" Color="{StaticResource Track2Color}" />
+            <SolidColorBrush x:Key="Track3Brush" Color="{StaticResource Track3Color}" />
+            <SolidColorBrush x:Key="Track4Brush" Color="{StaticResource Track4Color}" />
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+
+    <!-- Fullscreen controls float over video, so they stay dark in both themes. -->
+    <SolidColorBrush x:Key="FullscreenBarBrush" Color="#E6101113" />
+
+
+    <!-- Typography -->
+    <FontFamily x:Key="UiFont">Segoe UI Variable Text</FontFamily>
+    <FontFamily x:Key="DisplayFont">Segoe UI Variable Display</FontFamily>
+    <FontFamily x:Key="MonoFont">Cascadia Mono, Consolas</FontFamily>
+    <x:Double x:Key="TextCaption">11</x:Double>
+    <x:Double x:Key="TextSmall">12</x:Double>
+    <x:Double x:Key="TextBody">13</x:Double>
+    <x:Double x:Key="TextSubtitle">14</x:Double>
+    <x:Double x:Key="TextTitle">18</x:Double>
+    <x:Double x:Key="TextTimecode">15</x:Double>
+
+    <!-- Geometry -->
+    <CornerRadius x:Key="RadiusSmall">4</CornerRadius>
+    <CornerRadius x:Key="RadiusMedium">6</CornerRadius>
+    <CornerRadius x:Key="RadiusLarge">8</CornerRadius>
+    <x:Double x:Key="ControlHeight">32</x:Double>
+    <x:Double x:Key="ControlHeightCompact">28</x:Double>
+    <x:Double x:Key="IconSize">16</x:Double>
+    <x:Double x:Key="IconSizeLarge">20</x:Double>
+    <x:Double x:Key="TitleBarHeight">48</x:Double>
+    <x:Double x:Key="ExplorerWidth">272</x:Double>
+    <x:Double x:Key="RailWidth">212</x:Double>
+    <x:Double x:Key="LaneHeaderWidth">212</x:Double>
+
+    <!-- WinUI global geometry -->
+    <CornerRadius x:Key="ControlCornerRadius">6</CornerRadius>
+    <CornerRadius x:Key="OverlayCornerRadius">8</CornerRadius>
+
+    <!-- Motion (ms) -->
+    <x:Double x:Key="MotionFast">120</x:Double>
+    <x:Double x:Key="MotionNormal">160</x:Double>
+    <x:Double x:Key="MotionSlow">200</x:Double>
+</ResourceDictionary>

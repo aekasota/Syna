@@ -1,0 +1,551 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="ms-appx:///Themes/Tokens.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- Typography -->
+    <Style x:Key="CaptionText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource UiFont}" />
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}" />
+        <Setter Property="Foreground" Value="{ThemeResource TextTertiaryBrush}" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+    </Style>
+    <Style x:Key="SectionLabel" TargetType="TextBlock" BasedOn="{StaticResource CaptionText}">
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="CharacterSpacing" Value="60" />
+    </Style>
+    <Style x:Key="SmallText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource UiFont}" />
+        <Setter Property="FontSize" Value="{StaticResource TextSmall}" />
+        <Setter Property="Foreground" Value="{ThemeResource TextSecondaryBrush}" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+    </Style>
+    <Style x:Key="BodyText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource UiFont}" />
+        <Setter Property="FontSize" Value="{StaticResource TextBody}" />
+        <Setter Property="Foreground" Value="{ThemeResource TextPrimaryBrush}" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+    <Style x:Key="SubtitleText" TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
+        <Setter Property="FontSize" Value="{StaticResource TextSubtitle}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style x:Key="TitleText" TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
+        <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+        <Setter Property="FontSize" Value="{StaticResource TextTitle}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style x:Key="TimecodeText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource UiFont}" />
+        <Setter Property="FontSize" Value="{StaticResource TextTimecode}" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="{ThemeResource TextPrimaryBrush}" />
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular" />
+    </Style>
+    <Style x:Key="MonoText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource MonoFont}" />
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}" />
+        <Setter Property="Foreground" Value="{ThemeResource TextSecondaryBrush}" />
+    </Style>
+
+    <!-- Buttons: one overlay-based state system -->
+    <ControlTemplate x:Key="QuietButtonTemplate" TargetType="ButtonBase">
+        <Grid x:Name="Root" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+              BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}">
+            <Border x:Name="Overlay" CornerRadius="{TemplateBinding CornerRadius}" />
+            <ContentPresenter x:Name="Content" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
+                              Padding="{TemplateBinding Padding}" Foreground="{TemplateBinding Foreground}"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Target="Overlay.Background" Value="{ThemeResource HoverOverlayBrush}" />
+                            <Setter Target="Content.Foreground" Value="{ThemeResource TextPrimaryBrush}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Target="Overlay.Background" Value="{ThemeResource PressedOverlayBrush}" />
+                            <Setter Target="Content.Foreground" Value="{ThemeResource TextPrimaryBrush}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Target="Content.Foreground" Value="{ThemeResource TextDisabledBrush}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Checked">
+                        <VisualState.Setters>
+                            <Setter Target="Overlay.Background" Value="{ThemeResource SelectedOverlayBrush}" />
+                            <Setter Target="Content.Foreground" Value="{ThemeResource AccentStrongTextBrush}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="CheckedPointerOver">
+                        <VisualState.Setters>
+                            <Setter Target="Overlay.Background" Value="{ThemeResource SelectedOverlayBrush}" />
+                            <Setter Target="Content.Foreground" Value="{ThemeResource AccentStrongTextBrush}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="CheckedPressed">
+                        <VisualState.Setters>
+                            <Setter Target="Overlay.Background" Value="{ThemeResource PressedOverlayBrush}" />
+                            <Setter Target="Content.Foreground" Value="{ThemeResource AccentStrongTextBrush}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="CheckedDisabled">
+                        <VisualState.Setters>
+                            <Setter Target="Content.Foreground" Value="{ThemeResource TextDisabledBrush}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="SolidButtonTemplate" TargetType="Button">
+        <Grid x:Name="Root" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+              BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}">
+            <Border x:Name="Overlay" CornerRadius="{TemplateBinding CornerRadius}" />
+            <ContentPresenter x:Name="Content" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
+                              Padding="{TemplateBinding Padding}" Foreground="{TemplateBinding Foreground}"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Target="Overlay.Background" Value="{ThemeResource HoverOverlayBrush}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Target="Overlay.Background" Value="{ThemeResource PressedOverlayBrush}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Target="Root.Opacity" Value="0.45" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+        </Grid>
+    </ControlTemplate>
+
+    <Style x:Key="QuietButton" TargetType="Button">
+        <Setter Property="Template" Value="{StaticResource QuietButtonTemplate}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{ThemeResource TextSecondaryBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusMedium}" />
+        <Setter Property="Padding" Value="10,0" />
+        <Setter Property="MinHeight" Value="{StaticResource ControlHeightCompact}" />
+        <Setter Property="FontFamily" Value="{StaticResource UiFont}" />
+        <Setter Property="FontSize" Value="{StaticResource TextBody}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="FocusVisualMargin" Value="-2" />
+    </Style>
+
+    <Style x:Key="IconButton" TargetType="Button" BasedOn="{StaticResource QuietButton}">
+        <Setter Property="Width" Value="{StaticResource ControlHeightCompact}" />
+        <Setter Property="Height" Value="{StaticResource ControlHeightCompact}" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style x:Key="TransportButton" TargetType="Button" BasedOn="{StaticResource QuietButton}">
+        <Setter Property="Width" Value="34" />
+        <Setter Property="Height" Value="34" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="CornerRadius" Value="17" />
+        <Setter Property="Foreground" Value="{ThemeResource TextPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="PlayButton" TargetType="Button">
+        <Setter Property="Template" Value="{StaticResource SolidButtonTemplate}" />
+        <Setter Property="Width" Value="42" />
+        <Setter Property="Height" Value="42" />
+        <Setter Property="CornerRadius" Value="21" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="{ThemeResource TextPrimaryBrush}" />
+        <Setter Property="Foreground" Value="{ThemeResource Surface1Brush}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="FocusVisualMargin" Value="-3" />
+    </Style>
+
+    <Style x:Key="AccentButton" TargetType="Button">
+        <Setter Property="Template" Value="{StaticResource SolidButtonTemplate}" />
+        <Setter Property="Background" Value="{ThemeResource AccentBrush}" />
+        <Setter Property="Foreground" Value="{ThemeResource AccentTextBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusMedium}" />
+        <Setter Property="Padding" Value="16,0" />
+        <Setter Property="MinHeight" Value="{StaticResource ControlHeight}" />
+        <Setter Property="FontFamily" Value="{StaticResource UiFont}" />
+        <Setter Property="FontSize" Value="{StaticResource TextBody}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="FocusVisualMargin" Value="-2" />
+    </Style>
+
+    <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource AccentButton}">
+        <Setter Property="Background" Value="{ThemeResource Surface3Brush}" />
+        <Setter Property="Foreground" Value="{ThemeResource TextPrimaryBrush}" />
+        <Setter Property="BorderBrush" Value="{ThemeResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="FontWeight" Value="Normal" />
+    </Style>
+
+    <Style x:Key="ToggleIconButton" TargetType="ToggleButton">
+        <Setter Property="Template" Value="{StaticResource QuietButtonTemplate}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{ThemeResource TextSecondaryBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusMedium}" />
+        <Setter Property="Width" Value="{StaticResource ControlHeightCompact}" />
+        <Setter Property="Height" Value="{StaticResource ControlHeightCompact}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="FocusVisualMargin" Value="-2" />
+    </Style>
+
+    <Style x:Key="ToggleTextButton" TargetType="ToggleButton" BasedOn="{StaticResource ToggleIconButton}">
+        <Setter Property="Width" Value="NaN" />
+        <Setter Property="Padding" Value="10,0" />
+        <Setter Property="FontFamily" Value="{StaticResource UiFont}" />
+        <Setter Property="FontSize" Value="{StaticResource TextSmall}" />
+    </Style>
+
+    <!-- Track mute/solo: compact letter toggles with distinct checked colors. -->
+    <ControlTemplate x:Key="TrackToggleTemplate" TargetType="ToggleButton">
+        <Grid x:Name="Root" CornerRadius="{StaticResource RadiusSmall}" BorderThickness="1" BorderBrush="{ThemeResource BorderStrongBrush}" Background="Transparent">
+            <ContentPresenter x:Name="Content" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                              Foreground="{ThemeResource TextSecondaryBrush}" FontSize="10" FontWeight="SemiBold" />
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Target="Root.Background" Value="{ThemeResource HoverOverlayBrush}" />
+                            <Setter Target="Content.Foreground" Value="{ThemeResource TextPrimaryBrush}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Target="Root.Background" Value="{ThemeResource PressedOverlayBrush}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Checked">
+                        <VisualState.Setters>
+                            <Setter Target="Root.Background" Value="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" />
+                            <Setter Target="Root.BorderBrush" Value="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" />
+                            <Setter Target="Content.Foreground" Value="{ThemeResource AccentTextBrush}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="CheckedPointerOver">
+                        <VisualState.Setters>
+                            <Setter Target="Root.Background" Value="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" />
+                            <Setter Target="Root.BorderBrush" Value="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" />
+                            <Setter Target="Content.Foreground" Value="{ThemeResource AccentTextBrush}" />
+                            <Setter Target="Root.Opacity" Value="0.9" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="CheckedPressed">
+                        <VisualState.Setters>
+                            <Setter Target="Root.Background" Value="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" />
+                            <Setter Target="Content.Foreground" Value="{ThemeResource AccentTextBrush}" />
+                            <Setter Target="Root.Opacity" Value="0.8" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Target="Root.Opacity" Value="0.4" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+        </Grid>
+    </ControlTemplate>
+
+    <Style x:Key="TrackToggle" TargetType="ToggleButton">
+        <Setter Property="Template" Value="{StaticResource TrackToggleTemplate}" />
+        <Setter Property="Width" Value="22" />
+        <Setter Property="Height" Value="20" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="FocusVisualMargin" Value="-2" />
+    </Style>
+
+    <!-- Segmented choice (radio semantics, one visual group). -->
+    <Style x:Key="SegmentButton" TargetType="RadioButton">
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid x:Name="Root" CornerRadius="{StaticResource RadiusSmall}" Background="Transparent" Padding="12,6">
+                        <ContentPresenter x:Name="Content" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                          Foreground="{ThemeResource TextSecondaryBrush}" FontFamily="{StaticResource UiFont}" FontSize="{StaticResource TextSmall}" />
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="Content.Foreground" Value="{ThemeResource TextPrimaryBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed" />
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="Root.Opacity" Value="0.4" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="CheckStates">
+                                <VisualState x:Name="Checked">
+                                    <VisualState.Setters>
+                                        <Setter Target="Root.Background" Value="{ThemeResource Surface3Brush}" />
+                                        <Setter Target="Content.Foreground" Value="{ThemeResource TextPrimaryBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Unchecked" />
+                                <VisualState x:Name="Indeterminate" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="FocusVisualMargin" Value="-1" />
+    </Style>
+
+    <!-- Switch: compact product control (the WinUI default reserves 154 px for On/Off labels). -->
+    <Style x:Key="Switch" TargetType="ToggleSwitch">
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="FocusVisualMargin" Value="-3" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleSwitch">
+                    <Grid x:Name="Root" Width="36" Height="20" Background="Transparent">
+                        <Border x:Name="Track" CornerRadius="10" Background="{ThemeResource Surface3Brush}" BorderBrush="{ThemeResource BorderStrongBrush}" BorderThickness="1" />
+                        <Border x:Name="TrackOn" CornerRadius="10" Background="{ThemeResource AccentBrush}" Opacity="0" />
+                        <Border x:Name="Knob" Width="14" Height="14" CornerRadius="7" HorizontalAlignment="Left" Margin="3,0,0,0" Background="{ThemeResource TextSecondaryBrush}">
+                            <Border.RenderTransform>
+                                <TranslateTransform x:Name="KnobOffset" />
+                            </Border.RenderTransform>
+                        </Border>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="Track.BorderBrush" Value="{ThemeResource TextTertiaryBrush}" />
+                                        <Setter Target="TrackOn.Background" Value="{ThemeResource AccentHoverBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="TrackOn.Background" Value="{ThemeResource AccentPressedBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="Root.Opacity" Value="0.4" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="ToggleStates">
+                                <VisualStateGroup.Transitions>
+                                    <VisualTransition GeneratedDuration="0:0:0.15">
+                                        <VisualTransition.GeneratedEasingFunction>
+                                            <CubicEase EasingMode="EaseOut" />
+                                        </VisualTransition.GeneratedEasingFunction>
+                                    </VisualTransition>
+                                </VisualStateGroup.Transitions>
+                                <VisualState x:Name="Dragging" />
+                                <VisualState x:Name="Off" />
+                                <VisualState x:Name="On">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="KnobOffset" Storyboard.TargetProperty="X" To="16" Duration="0" />
+                                        <DoubleAnimation Storyboard.TargetName="TrackOn" Storyboard.TargetProperty="Opacity" To="1" Duration="0" />
+                                    </Storyboard>
+                                    <VisualState.Setters>
+                                        <Setter Target="Knob.Background" Value="{ThemeResource AccentTextBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="ContentStates">
+                                <VisualState x:Name="OffContent" />
+                                <VisualState x:Name="OnContent" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Text input -->
+    <Style x:Key="FieldTextBox" TargetType="TextBox">
+        <Setter Property="FontFamily" Value="{StaticResource UiFont}" />
+        <Setter Property="FontSize" Value="{StaticResource TextBody}" />
+        <Setter Property="MinHeight" Value="30" />
+        <Setter Property="Padding" Value="10,5,8,5" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusMedium}" />
+    </Style>
+
+    <!-- A choice that opens a menu: reads like a field (current value, chevron); the menu is a MenuFlyout. -->
+    <Style x:Key="ChoiceButton" TargetType="Button" BasedOn="{StaticResource QuietButton}">
+        <Setter Property="Background" Value="{ThemeResource Surface2Brush}" />
+        <Setter Property="BorderBrush" Value="{ThemeResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Foreground" Value="{ThemeResource TextPrimaryBrush}" />
+        <Setter Property="Padding" Value="10,0,8,0" />
+        <Setter Property="MinHeight" Value="30" />
+        <Setter Property="FontSize" Value="{StaticResource TextSmall}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    </Style>
+
+    <x:Double x:Key="SliderHorizontalThumbWidth">12</x:Double>
+    <x:Double x:Key="SliderHorizontalThumbHeight">12</x:Double>
+    <x:Double x:Key="SliderTrackThemeHeight">3</x:Double>
+    <Thickness x:Key="MenuFlyoutItemThemePadding">12,7,12,8</Thickness>
+    <x:Double x:Key="ToolTipContentThemeFontSize">12</x:Double>
+
+    <!-- Popups / list visuals follow the tokens through WinUI's lightweight styling keys. -->
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+            <StaticResource x:Key="SystemControlFocusVisualPrimaryBrush" ResourceKey="AccentBrush" />
+            <StaticResource x:Key="SystemControlFocusVisualSecondaryBrush" ResourceKey="AppBackgroundBrush" />
+            <StaticResource x:Key="TextControlBackground" ResourceKey="Surface2Brush" />
+            <StaticResource x:Key="TextControlBackgroundPointerOver" ResourceKey="Surface3Brush" />
+            <StaticResource x:Key="TextControlBackgroundFocused" ResourceKey="Surface2Brush" />
+            <StaticResource x:Key="TextControlBorderBrush" ResourceKey="BorderBrush" />
+            <StaticResource x:Key="TextControlBorderBrushPointerOver" ResourceKey="BorderStrongBrush" />
+            <StaticResource x:Key="TextControlBorderBrushFocused" ResourceKey="AccentBrush" />
+            <StaticResource x:Key="TextControlForeground" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="TextControlForegroundFocused" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="TextControlPlaceholderForeground" ResourceKey="TextTertiaryBrush" />
+            <StaticResource x:Key="TextControlPlaceholderForegroundFocused" ResourceKey="TextTertiaryBrush" />
+            <StaticResource x:Key="TextControlSelectionHighlightColor" ResourceKey="AccentBrush" />
+            <StaticResource x:Key="ListViewItemBackgroundPointerOver" ResourceKey="HoverOverlayBrush" />
+            <StaticResource x:Key="ListViewItemBackgroundPressed" ResourceKey="PressedOverlayBrush" />
+            <StaticResource x:Key="ListViewItemBackgroundSelected" ResourceKey="SelectedOverlayBrush" />
+            <StaticResource x:Key="ListViewItemBackgroundSelectedPointerOver" ResourceKey="SelectedOverlayBrush" />
+            <StaticResource x:Key="ListViewItemBackgroundSelectedPressed" ResourceKey="PressedOverlayBrush" />
+            <StaticResource x:Key="ListViewItemSelectionIndicatorBrush" ResourceKey="AccentBrush" />
+            <StaticResource x:Key="ListViewItemSelectionIndicatorPointerOverBrush" ResourceKey="AccentBrush" />
+            <StaticResource x:Key="ListViewItemSelectionIndicatorPressedBrush" ResourceKey="AccentBrush" />
+            <StaticResource x:Key="MenuFlyoutPresenterBackground" ResourceKey="Surface2Brush" />
+            <StaticResource x:Key="MenuFlyoutPresenterBorderBrush" ResourceKey="BorderStrongBrush" />
+            <StaticResource x:Key="MenuFlyoutItemBackgroundPointerOver" ResourceKey="HoverOverlayBrush" />
+            <StaticResource x:Key="MenuFlyoutItemBackgroundPressed" ResourceKey="PressedOverlayBrush" />
+            <StaticResource x:Key="MenuFlyoutItemForeground" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="MenuFlyoutItemForegroundPointerOver" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="MenuFlyoutItemKeyboardAcceleratorTextForeground" ResourceKey="TextTertiaryBrush" />
+            <StaticResource x:Key="MenuFlyoutSeparatorBackground" ResourceKey="BorderBrush" />
+            <StaticResource x:Key="MenuFlyoutSubItemBackgroundPointerOver" ResourceKey="HoverOverlayBrush" />
+            <StaticResource x:Key="FlyoutPresenterBackground" ResourceKey="Surface2Brush" />
+            <StaticResource x:Key="FlyoutBorderThemeBrush" ResourceKey="BorderStrongBrush" />
+            <StaticResource x:Key="ToolTipBackground" ResourceKey="Surface3Brush" />
+            <StaticResource x:Key="ToolTipForeground" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="ToolTipBorderBrush" ResourceKey="BorderStrongBrush" />
+            <StaticResource x:Key="SliderTrackFill" ResourceKey="MeterTrackBrush" />
+            <StaticResource x:Key="SliderTrackFillPointerOver" ResourceKey="BorderStrongBrush" />
+            <StaticResource x:Key="SliderTrackFillPressed" ResourceKey="BorderStrongBrush" />
+            <StaticResource x:Key="SliderTrackValueFill" ResourceKey="TextSecondaryBrush" />
+            <StaticResource x:Key="SliderTrackValueFillPointerOver" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="SliderTrackValueFillPressed" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="SliderThumbBackground" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="SliderThumbBackgroundPointerOver" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="SliderThumbBackgroundPressed" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="SliderOuterThumbBackground" ResourceKey="Surface3Brush" />
+            <StaticResource x:Key="ToggleSwitchFillOn" ResourceKey="AccentBrush" />
+            <StaticResource x:Key="ToggleSwitchFillOnPointerOver" ResourceKey="AccentHoverBrush" />
+            <StaticResource x:Key="ToggleSwitchFillOnPressed" ResourceKey="AccentPressedBrush" />
+            <StaticResource x:Key="ToggleSwitchKnobFillOn" ResourceKey="AccentTextBrush" />
+            <StaticResource x:Key="ToggleSwitchKnobFillOnPointerOver" ResourceKey="AccentTextBrush" />
+            <StaticResource x:Key="ToggleSwitchStrokeOff" ResourceKey="BorderStrongBrush" />
+            <StaticResource x:Key="ToggleSwitchKnobFillOff" ResourceKey="TextSecondaryBrush" />
+            <StaticResource x:Key="ScrollBarThumbFill" ResourceKey="BorderStrongBrush" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Light">
+            <StaticResource x:Key="SystemControlFocusVisualPrimaryBrush" ResourceKey="AccentBrush" />
+            <StaticResource x:Key="SystemControlFocusVisualSecondaryBrush" ResourceKey="AppBackgroundBrush" />
+            <StaticResource x:Key="TextControlBackground" ResourceKey="Surface2Brush" />
+            <StaticResource x:Key="TextControlBackgroundPointerOver" ResourceKey="Surface2Brush" />
+            <StaticResource x:Key="TextControlBackgroundFocused" ResourceKey="Surface2Brush" />
+            <StaticResource x:Key="TextControlBorderBrush" ResourceKey="BorderStrongBrush" />
+            <StaticResource x:Key="TextControlBorderBrushPointerOver" ResourceKey="BorderStrongBrush" />
+            <StaticResource x:Key="TextControlBorderBrushFocused" ResourceKey="AccentBrush" />
+            <StaticResource x:Key="TextControlForeground" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="TextControlForegroundFocused" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="TextControlPlaceholderForeground" ResourceKey="TextTertiaryBrush" />
+            <StaticResource x:Key="TextControlPlaceholderForegroundFocused" ResourceKey="TextTertiaryBrush" />
+            <StaticResource x:Key="TextControlSelectionHighlightColor" ResourceKey="AccentBrush" />
+            <StaticResource x:Key="ListViewItemBackgroundPointerOver" ResourceKey="HoverOverlayBrush" />
+            <StaticResource x:Key="ListViewItemBackgroundPressed" ResourceKey="PressedOverlayBrush" />
+            <StaticResource x:Key="ListViewItemBackgroundSelected" ResourceKey="SelectedOverlayBrush" />
+            <StaticResource x:Key="ListViewItemBackgroundSelectedPointerOver" ResourceKey="SelectedOverlayBrush" />
+            <StaticResource x:Key="ListViewItemBackgroundSelectedPressed" ResourceKey="PressedOverlayBrush" />
+            <StaticResource x:Key="ListViewItemSelectionIndicatorBrush" ResourceKey="AccentBrush" />
+            <StaticResource x:Key="ListViewItemSelectionIndicatorPointerOverBrush" ResourceKey="AccentBrush" />
+            <StaticResource x:Key="ListViewItemSelectionIndicatorPressedBrush" ResourceKey="AccentBrush" />
+            <StaticResource x:Key="MenuFlyoutPresenterBackground" ResourceKey="Surface2Brush" />
+            <StaticResource x:Key="MenuFlyoutPresenterBorderBrush" ResourceKey="BorderStrongBrush" />
+            <StaticResource x:Key="MenuFlyoutItemBackgroundPointerOver" ResourceKey="HoverOverlayBrush" />
+            <StaticResource x:Key="MenuFlyoutItemBackgroundPressed" ResourceKey="PressedOverlayBrush" />
+            <StaticResource x:Key="MenuFlyoutItemForeground" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="MenuFlyoutItemForegroundPointerOver" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="MenuFlyoutItemKeyboardAcceleratorTextForeground" ResourceKey="TextTertiaryBrush" />
+            <StaticResource x:Key="MenuFlyoutSeparatorBackground" ResourceKey="BorderBrush" />
+            <StaticResource x:Key="MenuFlyoutSubItemBackgroundPointerOver" ResourceKey="HoverOverlayBrush" />
+            <StaticResource x:Key="FlyoutPresenterBackground" ResourceKey="Surface2Brush" />
+            <StaticResource x:Key="FlyoutBorderThemeBrush" ResourceKey="BorderStrongBrush" />
+            <StaticResource x:Key="ToolTipBackground" ResourceKey="Surface2Brush" />
+            <StaticResource x:Key="ToolTipForeground" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="ToolTipBorderBrush" ResourceKey="BorderStrongBrush" />
+            <StaticResource x:Key="SliderTrackFill" ResourceKey="MeterTrackBrush" />
+            <StaticResource x:Key="SliderTrackFillPointerOver" ResourceKey="BorderStrongBrush" />
+            <StaticResource x:Key="SliderTrackFillPressed" ResourceKey="BorderStrongBrush" />
+            <StaticResource x:Key="SliderTrackValueFill" ResourceKey="TextSecondaryBrush" />
+            <StaticResource x:Key="SliderTrackValueFillPointerOver" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="SliderTrackValueFillPressed" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="SliderThumbBackground" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="SliderThumbBackgroundPointerOver" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="SliderThumbBackgroundPressed" ResourceKey="TextPrimaryBrush" />
+            <StaticResource x:Key="SliderOuterThumbBackground" ResourceKey="Surface2Brush" />
+            <StaticResource x:Key="ToggleSwitchFillOn" ResourceKey="AccentBrush" />
+            <StaticResource x:Key="ToggleSwitchFillOnPointerOver" ResourceKey="AccentHoverBrush" />
+            <StaticResource x:Key="ToggleSwitchFillOnPressed" ResourceKey="AccentPressedBrush" />
+            <StaticResource x:Key="ToggleSwitchKnobFillOn" ResourceKey="AccentTextBrush" />
+            <StaticResource x:Key="ToggleSwitchKnobFillOnPointerOver" ResourceKey="AccentTextBrush" />
+            <StaticResource x:Key="ToggleSwitchStrokeOff" ResourceKey="BorderStrongBrush" />
+            <StaticResource x:Key="ToggleSwitchKnobFillOff" ResourceKey="TextSecondaryBrush" />
+            <StaticResource x:Key="ScrollBarThumbFill" ResourceKey="BorderStrongBrush" />
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+
+</ResourceDictionary>

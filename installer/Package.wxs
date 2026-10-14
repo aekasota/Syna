@@ -1,0 +1,84 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <!-- Per-user by default (no administrator rights): a dual-purpose package whose program folder
+       Windows Installer redirects to %LOCALAPPDATA%\Programs. That is where the app's file type
+       registration expects it, and the registration is per user (docs/PACKAGING.md). -->
+  <Package Name="Syna"
+           Manufacturer="hyak"
+           Version="$(var.ProductVersion)"
+           UpgradeCode="4B38677F-67FF-49EE-9D91-215972F7BB22"
+           Scope="perUserOrMachine"
+           Compressed="yes">
+
+    <!-- The previous version is removed before this one is installed, so its file type
+         unregistration runs first and every file is replaced whatever its version. -->
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Syna is already installed."
+                  AllowSameVersionUpgrades="yes"
+                  Schedule="afterInstallValidate" />
+
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <Icon Id="SynaIcon" SourceFile="!(bindpath.App)Assets\AppIcon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="SynaIcon" />
+    <SetProperty Id="ARPINSTALLLOCATION" Value="[INSTALLFOLDER]" After="CostFinalize" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="Syna" />
+    </StandardDirectory>
+
+    <ComponentGroup Id="AppFiles" Directory="INSTALLFOLDER">
+      <Component Id="SynaExe">
+        <File Id="SynaExe" Name="Syna.exe" Source="!(bindpath.App)Syna.exe" KeyPath="yes" />
+      </Component>
+      <Files Include="!(bindpath.App)**">
+        <Exclude Files="!(bindpath.App)Syna.exe" />
+      </Files>
+    </ComponentGroup>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Component Id="StartMenuShortcut">
+        <Shortcut Id="SynaShortcut" Name="Syna" Description="Player and trimmer for local gameplay clips"
+                  Target="[#SynaExe]" WorkingDirectory="INSTALLFOLDER" Icon="SynaIcon" />
+        <RegistryValue Root="HKMU" Key="Software\hyak\Syna" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </StandardDirectory>
+
+    <Feature Id="Main">
+      <ComponentGroupRef Id="AppFiles" />
+      <ComponentRef Id="StartMenuShortcut" />
+    </Feature>
+
+    <!-- "Open with" entries and the Default apps description, written by the app itself through the
+         Windows App SDK, the same way it does from Settings. The ProgID is derived from the path of
+         Syna.exe, so a default app chosen for an earlier version keeps working after an upgrade.
+         WixQuietExec writes the app's report of the result to the installer log; a failure there
+         does not stop the installation or removal. -->
+    <SetProperty Id="RegisterFileTypes" Value="&quot;[#SynaExe]&quot; --register-file-types"
+                 Before="RegisterFileTypes" Sequence="execute" />
+    <SetProperty Id="UnregisterFileTypes" Value="&quot;[#SynaExe]&quot; --unregister-file-types"
+                 Before="UnregisterFileTypes" Sequence="execute" />
+    <CustomAction Id="RegisterFileTypes" BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)" DllEntry="WixQuietExec"
+                  Execute="deferred" Impersonate="yes" Return="ignore" />
+    <CustomAction Id="UnregisterFileTypes" BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)" DllEntry="WixQuietExec"
+                  Execute="deferred" Impersonate="yes" Return="ignore" />
+    <InstallExecuteSequence>
+      <Custom Action="UnregisterFileTypes" Before="RemoveFiles" Condition='REMOVE="ALL"' />
+      <Custom Action="RegisterFileTypes" After="InstallFiles" Condition="NOT REMOVE" />
+    </InstallExecuteSequence>
+
+    <!-- License page: Syna's MIT License and, for the Windows App SDK files it redistributes,
+         Microsoft's terms, which end users have to accept (docs/THIRD-PARTY-NOTICES.md). -->
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.LicenseRtf)" />
+    <ui:WixUI Id="WixUI_Minimal" />
+
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Syna" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+    <Property Id="WixShellExecTarget" Value="[#SynaExe]" />
+    <CustomAction Id="LaunchSyna" BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)" DllEntry="WixShellExec" Impersonate="yes" />
+    <UI>
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchSyna"
+               Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
+    </UI>
+  </Package>
+</Wix>

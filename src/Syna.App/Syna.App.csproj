@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
+    <RootNamespace>Syna</RootNamespace>
+    <AssemblyName>Syna</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <UseWinUI>true</UseWinUI>
+    <!-- Unpackaged (installed by the MSI), but the MSIX tooling is what generates Syna.pri, which
+         carries WinUI's resources; without it the installed app cannot load its interface. -->
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <WindowsPackageType>None</WindowsPackageType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+    <Version>1.0.0</Version>
+    <Product>Syna</Product>
+    <Company>hyak</Company>
+    <Copyright>Copyright (c) 2026 hyak</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Only the Windows App SDK components the app uses (the metapackage adds AI/ML/Search/Widgets). -->
+    <PackageReference Include="Microsoft.WindowsAppSDK.Runtime" Version="2.5.1" />
+    <PackageReference Include="Microsoft.WindowsAppSDK.Foundation" Version="2.3.12" />
+    <PackageReference Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="2.1.9" />
+    <PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="2.3.9" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2705" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Syna.Core\Syna.Core.csproj" />
+  </ItemGroup>
+
+  <!-- Native engine + FFmpeg runtime, built by scripts/build.ps1 (CMake). -->
+  <PropertyGroup>
+    <NativeBinDir>$(MSBuildThisFileDirectory)..\..\build\native-$(Configuration)\bin\</NativeBinDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="$(NativeBinDir)*.dll" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <None Include="$(NativeBinDir)Syna.Native.pdb" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Never" Visible="false" />
+    <Content Include="Assets\**" CopyToOutputDirectory="PreserveNewest" />
+    <!-- License texts installed next to the app (docs/THIRD-PARTY-NOTICES.md). The texts that come
+         with NuGet packages are added by scripts/package.ps1, which knows the restored versions. -->
+    <Content Include="..\..\LICENSE" Link="licenses\Syna-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <Content Include="..\..\docs\THIRD-PARTY-NOTICES.md" Link="licenses\THIRD-PARTY-NOTICES.md" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <Content Include="..\..\licenses\Apache-2.0.txt" Link="licenses\Apache-2.0.txt" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <!-- FFmpeg's license and those of the libraries built into its DLLs, as the FFmpeg package carries
+         them (scripts/ffmpeg/build.sh copies them from each library's source archive). -->
+    <Content Include="..\..\third_party\ffmpeg\licenses\*" Link="licenses\ffmpeg\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+
+  <Target Name="CheckNativeEngine" BeforeTargets="Build">
+    <Error Condition="!Exists('$(NativeBinDir)Syna.Native.dll')" Text="Native engine missing in $(NativeBinDir). Run scripts/build.ps1." />
+  </Target>
+
+</Project>

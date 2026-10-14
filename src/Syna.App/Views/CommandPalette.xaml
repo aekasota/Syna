@@ -1,0 +1,65 @@
+<UserControl
+    x:Class="Syna.Views.CommandPalette"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Syna.Controls"
+    xmlns:v="using:Syna.Views">
+
+    <Grid x:Name="Scrim" Background="Transparent" Visibility="Collapsed" PointerPressed="OnScrimPressed">
+        <Border x:Name="Panel" Width="580" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,60,0,0" Background="{ThemeResource Surface2Brush}"
+                BorderBrush="{ThemeResource BorderStrongBrush}" BorderThickness="1" CornerRadius="{StaticResource RadiusLarge}" PointerPressed="OnPanelPressed">
+            <Border.Shadow>
+                <ThemeShadow />
+            </Border.Shadow>
+            <StackPanel>
+                <Grid Padding="14,4,10,4" ColumnSpacing="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <c:Icon Kind="Search" Foreground="{ThemeResource TextTertiaryBrush}" VerticalAlignment="Center" />
+                    <TextBox x:Name="Query" Grid.Column="1" PlaceholderText="Type a command" BorderThickness="0" Background="Transparent" FontSize="14"
+                             Padding="0,9,0,9" TextChanged="OnQueryChanged" PreviewKeyDown="OnQueryKeyDown" AutomationProperties.Name="Command search">
+                        <TextBox.Resources>
+                            <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="Transparent" />
+                            <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="Transparent" />
+                            <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="Transparent" />
+                        </TextBox.Resources>
+                    </TextBox>
+                </Grid>
+                <Rectangle Height="1" Fill="{ThemeResource BorderBrush}" />
+                <ListView x:Name="Results" MaxHeight="400" SelectionMode="Single" IsItemClickEnabled="True" ItemClick="OnItemClick" Padding="6"
+                          AutomationProperties.Name="Commands">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Padding" Value="10,0" />
+                            <Setter Property="MinHeight" Value="36" />
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="CornerRadius" Value="{StaticResource RadiusMedium}" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="v:PaletteItem">
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <c:Icon Kind="{x:Bind Icon}" Foreground="{ThemeResource TextSecondaryBrush}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="{x:Bind Title}" Style="{StaticResource BodyText}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="2" Text="{x:Bind Group}" Style="{StaticResource CaptionText}" VerticalAlignment="Center" />
+                                <Border Grid.Column="3" Background="{ThemeResource Surface3Brush}" CornerRadius="{StaticResource RadiusSmall}" Padding="6,1"
+                                        VerticalAlignment="Center" Visibility="{x:Bind HasShortcut}">
+                                    <TextBlock Text="{x:Bind Shortcut}" FontSize="11" Foreground="{ThemeResource TextSecondaryBrush}" />
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+                <TextBlock x:Name="NoResults" Text="No matching commands." Style="{StaticResource SmallText}" Margin="16,12" Visibility="Collapsed" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

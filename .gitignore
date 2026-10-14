@@ -1,0 +1,13 @@
+bin/
+obj/
+build/
+out/
+artifacts/
+third_party/
+tests/fixtures/generated/
+*.user
+*.suo
+.vs/
+*.binlog
+*.pfx
+TestResults/

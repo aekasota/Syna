@@ -1,0 +1,185 @@
+name: Release
+
+# Builds FFmpeg from its pinned sources, then builds, tests and packages a tagged version and creates a
+# draft GitHub Release with the installer, its checksum and FFmpeg's corresponding source. Stops
+# before packaging when the FFmpeg DLLs may not be redistributed or their sources are incomplete
+# (docs/FFMPEG.md). Publishing the draft is left to the maintainer.
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # Always a fresh build: the release's DLLs come from exactly the sources it attaches.
+  ffmpeg:
+    name: Build FFmpeg
+    runs-on: ubuntu-24.04
+    container: ubuntu:24.04@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Build FFmpeg
+        run: |
+          bash scripts/ffmpeg/setup-ubuntu.sh
+          bash scripts/ffmpeg/build.sh ffmpeg-build
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ffmpeg-build
+          path: |
+            ffmpeg-build/*.zip
+            ffmpeg-build/source/
+          if-no-files-found: error
+
+  build:
+    name: Build, test and package
+    needs: ffmpeg
+    runs-on: windows-2025
+    timeout-minutes: 90
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # release notes list the changes since the previous tag
+          persist-credentials: false
+
+      - name: Check the tag against the project version
+        id: version
+        shell: powershell
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if ($env:TAG -notmatch '^v(\d+)\.(\d+)\.(\d+)$') { throw "Tag '$env:TAG' is not of the form vMAJOR.MINOR.PATCH." }
+          $version = $env:TAG.Substring(1)
+          $project = ([xml](Get-Content src\Syna.App\Syna.App.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          if ($project -ne $version) { throw "Tag '$env:TAG' does not match <Version>$project</Version> in src/Syna.App/Syna.App.csproj." }
+          [IO.File]::AppendAllText($env:GITHUB_OUTPUT, "version=$version`n")
+          Write-Host "Releasing Syna $version from $env:GITHUB_SHA"
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: ffmpeg-build
+          path: third_party/ffmpeg-build
+
+      - name: Build
+        shell: powershell
+        run: .\scripts\build.ps1 -Configuration Release
+
+      - name: Test
+        shell: powershell
+        run: .\scripts\test.ps1 -Configuration Release -NoBuild -Filter mixer_,sample_fifo
+
+      - name: Collect FFmpeg's corresponding source
+        shell: powershell
+        run: .\scripts\fetch-deps.ps1 -SourceTo artifacts\source
+
+      # GPL or nonfree code, a library without its license text, or a missing or changed source
+      # archive stops the release here.
+      - name: Check FFmpeg's licenses
+        shell: powershell
+        run: .\scripts\check-ffmpeg-license.ps1 -SourceDir artifacts\source
+
+      # Signing happens only when the repository has the certificate secrets (docs/PACKAGING.md). The
+      # certificate exists as a file only during this step.
+      - name: Package
+        shell: powershell
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          SIGN_CERT_BASE64: ${{ secrets.SYNA_SIGN_CERT_BASE64 }}
+          SYNA_SIGN_CERT_PASSWORD: ${{ secrets.SYNA_SIGN_CERT_PASSWORD }}
+        run: |
+          $pfx = $null
+          if ($env:SIGN_CERT_BASE64) {
+            $pfx = Join-Path $env:RUNNER_TEMP 'syna-signing.pfx'
+            [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:SIGN_CERT_BASE64))
+            $env:SYNA_SIGN_CERT_FILE = $pfx
+          }
+          try { .\scripts\package.ps1 -Configuration Release -Version $env:VERSION }
+          finally { if ($pfx) { Remove-Item $pfx -Force } }
+
+      - name: Verify the installer
+        shell: powershell
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          SIGNING_CONFIGURED: ${{ secrets.SYNA_SIGN_CERT_BASE64 != '' }}
+        run: |
+          $msi = "artifacts\Syna-Setup-$env:VERSION-x64.msi"
+          $expected = (Get-Content "$msi.sha256" -Raw).Split(' ')[0].Trim()
+          $actual = (Get-FileHash $msi -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($expected -ne $actual) { throw "The checksum file does not match $msi." }
+          $signature = (Get-AuthenticodeSignature $msi).Status
+          Write-Host "Signature: $signature"
+          if ($env:SIGNING_CONFIGURED -eq 'true' -and $signature -ne 'Valid') { throw "Signing is configured but the installer's signature is $signature." }
+          .\scripts\test-install.ps1 -Msi $msi
+
+      - name: Write release notes
+        shell: powershell
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: .\scripts\release-notes.ps1 -Version $env:VERSION -Commit $env:GITHUB_SHA -Out artifacts\release-notes.md
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release
+          path: |
+            artifacts/Syna-Setup-${{ steps.version.outputs.version }}-x64.msi
+            artifacts/Syna-Setup-${{ steps.version.outputs.version }}-x64.msi.sha256
+            artifacts/source/
+            artifacts/release-notes.md
+          if-no-files-found: error
+
+      - name: Upload install logs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: install-logs
+          path: artifacts/install-test/
+          if-no-files-found: ignore
+
+  publish:
+    name: Create draft release
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: release
+          path: release
+
+      - name: Create or update the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          set -euo pipefail
+          files=(release/Syna-Setup-*.msi release/Syna-Setup-*.msi.sha256 release/source/*)
+          if is_draft=$(gh release view "$TAG" --json isDraft --jq .isDraft 2>/dev/null); then
+            if [ "$is_draft" != "true" ]; then
+              echo "Release $TAG is already published; its files are not replaced." >&2
+              exit 1
+            fi
+            gh release upload "$TAG" "${files[@]}" --clobber
+            gh release edit "$TAG" --title "Syna $VERSION" --notes-file release/release-notes.md
+          else
+            gh release create "$TAG" "${files[@]}" --draft --verify-tag --title "Syna $VERSION" --notes-file release/release-notes.md
+          fi
+          echo "Draft release $TAG is ready for review: https://github.com/$GH_REPO/releases"

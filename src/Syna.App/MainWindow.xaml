@@ -1,0 +1,141 @@
+<Window
+    x:Class="Syna.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Syna.Controls"
+    xmlns:v="using:Syna.Views"
+    Title="Syna">
+
+    <Grid x:Name="Root" Background="{ThemeResource AppBackgroundBrush}" AllowDrop="True"
+          DragOver="OnDragOver" DragLeave="OnDragLeave" Drop="OnDrop" PointerMoved="OnRootPointerMoved">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Title bar: drag region is the empty middle; system caption buttons sit in the reserved column. -->
+        <Grid x:Name="TitleBar" Height="{StaticResource TitleBarHeight}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition x:Name="CaptionColumn" Width="140" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal" Spacing="10" Margin="14,0,16,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                <c:Icon Kind="AppMark" Width="16" Height="16" Foreground="{ThemeResource AccentBrush}" />
+                <TextBlock Text="Syna" FontFamily="{StaticResource DisplayFont}" FontSize="13" FontWeight="SemiBold" CharacterSpacing="40"
+                           Foreground="{ThemeResource TextPrimaryBrush}" VerticalAlignment="Center" />
+            </StackPanel>
+            <Border x:Name="TitleDragArea" Grid.Column="1" Background="Transparent">
+                <TextBlock Text="{x:Bind ViewModel.Title, Mode=OneWay}" Style="{StaticResource SmallText}" Foreground="{ThemeResource TextPrimaryBrush}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="560" IsHitTestVisible="False" />
+            </Border>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+                <Button x:Name="PaletteButton" Click="OnPaletteClick" Style="{StaticResource QuietButton}" Height="28" Width="232" Padding="10,0"
+                        HorizontalContentAlignment="Stretch" Background="{ThemeResource Surface2Brush}" BorderBrush="{ThemeResource BorderBrush}" BorderThickness="1"
+                        ToolTipService.ToolTip="Search commands (Ctrl+K)" AutomationProperties.Name="Search commands" Margin="0,0,8,0">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <c:Icon Kind="Search" Width="14" Height="14" />
+                            <TextBlock Text="Search commands" FontSize="12" />
+                        </StackPanel>
+                        <TextBlock Text="Ctrl K" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11" Foreground="{ThemeResource TextTertiaryBrush}" />
+                    </Grid>
+                </Button>
+                <ToggleButton Style="{StaticResource ToggleIconButton}" IsChecked="{x:Bind ViewModel.ExplorerVisible, Mode=TwoWay}"
+                              ToolTipService.ToolTip="Explorer (Ctrl+Shift+E)" AutomationProperties.Name="Explorer">
+                    <c:Icon Kind="PanelLeft" />
+                </ToggleButton>
+                <ToggleButton Style="{StaticResource ToggleIconButton}" IsChecked="{x:Bind ViewModel.AudioPanelVisible, Mode=TwoWay}"
+                              ToolTipService.ToolTip="Audio tracks (Ctrl+Shift+A)" AutomationProperties.Name="Audio tracks">
+                    <c:Icon Kind="PanelBottom" />
+                </ToggleButton>
+                <ToggleButton Style="{StaticResource ToggleIconButton}" IsChecked="{x:Bind ViewModel.RailVisible, Mode=TwoWay}"
+                              ToolTipService.ToolTip="Clip list (Ctrl+Shift+L)" AutomationProperties.Name="Clip list">
+                    <c:Icon Kind="PanelRight" />
+                </ToggleButton>
+                <Button Style="{StaticResource IconButton}" Click="OnSettingsClick" ToolTipService.ToolTip="Settings (Ctrl+,)" AutomationProperties.Name="Settings">
+                    <c:Icon Kind="Settings" />
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <Grid x:Name="Body" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{x:Bind v:Ui.Width(ViewModel.ExplorerVisible, 272), Mode=OneWay}" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="{x:Bind v:Ui.Width(ViewModel.RailVisible, 212), Mode=OneWay}" />
+            </Grid.ColumnDefinitions>
+
+            <v:ExplorerPanel x:Name="Explorer" Visibility="{x:Bind ViewModel.ExplorerVisible, Mode=OneWay}" />
+
+            <Grid x:Name="Center" Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid x:Name="Stage" Background="{ThemeResource StageBrush}" DoubleTapped="OnStageDoubleTapped" Tapped="OnStageTapped">
+                    <SwapChainPanel x:Name="VideoPanel" />
+
+                    <!-- Empty state -->
+                    <StackPanel x:Name="EmptyState" Visibility="{x:Bind ViewModel.IsEmpty, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Spacing="14" MaxWidth="420">
+                        <c:Icon Kind="AppMark" Width="36" Height="36" Foreground="{ThemeResource TextTertiaryBrush}" HorizontalAlignment="Center" />
+                        <TextBlock Text="Open a clip" Style="{StaticResource SubtitleText}" HorizontalAlignment="Center" />
+                        <TextBlock Style="{StaticResource SmallText}" TextAlignment="Center" TextWrapping="Wrap" HorizontalAlignment="Center"
+                                   Text="Drop video files here, press Ctrl+O, or choose a recent clip." />
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <Button Style="{StaticResource AccentButton}" Content="Open file" Click="OnOpenFileClick" />
+                            <Button Style="{StaticResource SecondaryButton}" Content="Open folder" Click="OnOpenFolderClick" />
+                        </StackPanel>
+                        <ItemsControl x:Name="RecentList" Margin="0,10,0,0" />
+                    </StackPanel>
+
+                    <!-- Opening (shown only if opening is slow) -->
+                    <ProgressBar x:Name="LoadingBar" IsIndeterminate="True" VerticalAlignment="Top" Visibility="Collapsed" />
+
+                    <!-- Error -->
+                    <StackPanel Visibility="{x:Bind ViewModel.HasStageError, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12" MaxWidth="460">
+                        <c:Icon Kind="Warning" Width="28" Height="28" Foreground="{ThemeResource WarningBrush}" HorizontalAlignment="Center" />
+                        <TextBlock Text="This clip cannot be played" Style="{StaticResource SubtitleText}" HorizontalAlignment="Center" Foreground="#E8E8EA" />
+                        <TextBlock Text="{x:Bind ViewModel.StageMessage, Mode=OneWay}" Style="{StaticResource SmallText}" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" Foreground="#A1A3A9" />
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <Button Style="{StaticResource SecondaryButton}" Content="Reveal in Explorer" Click="OnRevealClick" />
+                            <Button Style="{StaticResource SecondaryButton}" Content="Close clip" Click="OnCloseClipClick" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Developer diagnostics (Ctrl+Shift+D) -->
+                    <Border Visibility="{x:Bind ViewModel.DiagnosticsVisible, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12"
+                            Background="#D9101113" BorderBrush="#24FFFFFF" BorderThickness="1" CornerRadius="{StaticResource RadiusLarge}" Padding="12,10" IsHitTestVisible="False">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="DIAGNOSTICS" Style="{StaticResource SectionLabel}" Foreground="#9A9DA3" />
+                            <TextBlock Text="{x:Bind ViewModel.DiagnosticsText, Mode=OneWay}" Style="{StaticResource MonoText}" Foreground="#D6D7DA" LineHeight="16" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Toasts -->
+                    <StackPanel x:Name="ToastHost" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,18" Spacing="8" />
+
+                    <!-- Drop target -->
+                    <Border x:Name="DropOverlay" Visibility="Collapsed" Margin="10" BorderThickness="2" BorderBrush="{ThemeResource AccentBrush}"
+                            CornerRadius="{StaticResource RadiusLarge}" Background="#66000000" IsHitTestVisible="False">
+                        <TextBlock x:Name="DropText" Text="Drop to open" FontSize="15" FontWeight="SemiBold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                </Grid>
+
+                <v:EditorStrip x:Name="Editor" Grid.Row="1" />
+            </Grid>
+
+            <v:SessionRail x:Name="Rail" Grid.Column="2" Visibility="{x:Bind ViewModel.RailVisible, Mode=OneWay}" />
+            <v:InfoPanel x:Name="Info" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Width="340"
+                         Visibility="{x:Bind ViewModel.InfoVisible, Mode=OneWay}" />
+        </Grid>
+
+        <v:TrimSheet x:Name="TrimSheet" Grid.RowSpan="2" />
+        <v:CommandPalette x:Name="Palette" Grid.RowSpan="2" />
+        <v:SettingsView x:Name="SettingsPage" Grid.RowSpan="2" />
+        <v:DialogHost x:Name="Dialogs" Grid.RowSpan="2" />
+    </Grid>
+</Window>

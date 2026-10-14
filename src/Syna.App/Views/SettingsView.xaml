@@ -1,0 +1,345 @@
+<UserControl
+    x:Class="Syna.Views.SettingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Syna.Controls">
+
+    <UserControl.Resources>
+        <Style x:Key="RowGrid" TargetType="Grid">
+            <Setter Property="Padding" Value="0,10" />
+            <Setter Property="ColumnSpacing" Value="24" />
+            <Setter Property="BorderBrush" Value="{ThemeResource BorderBrush}" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
+        </Style>
+        <Style x:Key="RowLabel" TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <Style x:Key="RowHint" TargetType="TextBlock" BasedOn="{StaticResource CaptionText}">
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="TextTrimming" Value="None" />
+            <Setter Property="Margin" Value="0,2,0,0" />
+        </Style>
+        <Style x:Key="SectionTitle" TargetType="TextBlock" BasedOn="{StaticResource SubtitleText}">
+            <Setter Property="Margin" Value="0,22,0,4" />
+        </Style>
+        <Style x:Key="NavItem" TargetType="RadioButton">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="GroupName" Value="settingsnav" />
+            <Setter Property="UseSystemFocusVisuals" Value="True" />
+            <Setter Property="FocusVisualMargin" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Grid x:Name="Root" Height="32" CornerRadius="{StaticResource RadiusMedium}" Background="Transparent">
+                            <Border x:Name="Selection" Background="{ThemeResource SelectedOverlayBrush}" Opacity="0" />
+                            <ContentPresenter x:Name="Content" Content="{TemplateBinding Content}" Margin="12,0" VerticalAlignment="Center"
+                                              Foreground="{ThemeResource TextSecondaryBrush}" FontFamily="{StaticResource UiFont}" FontSize="{StaticResource TextBody}" />
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Target="Root.Background" Value="{ThemeResource HoverOverlayBrush}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <VisualState.Setters>
+                                            <Setter Target="Root.Background" Value="{ThemeResource PressedOverlayBrush}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled" />
+                                </VisualStateGroup>
+                                <VisualStateGroup x:Name="CheckStates">
+                                    <VisualState x:Name="Checked">
+                                        <VisualState.Setters>
+                                            <Setter Target="Selection.Opacity" Value="1" />
+                                            <Setter Target="Content.Foreground" Value="{ThemeResource TextPrimaryBrush}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Unchecked" />
+                                    <VisualState x:Name="Indeterminate" />
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ChoiceButton" TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+            <Setter Property="MinWidth" Value="96" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid x:Name="Scrim" Background="{ThemeResource ShadeBrush}" Visibility="Collapsed" KeyDown="OnKeyDown" SizeChanged="OnScrimSizeChanged">
+        <Border x:Name="Panel" Width="900" Height="680" HorizontalAlignment="Center" VerticalAlignment="Center"
+                Background="{ThemeResource Surface1Brush}" BorderBrush="{ThemeResource BorderStrongBrush}" BorderThickness="1" CornerRadius="{StaticResource RadiusLarge}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Background="{ThemeResource Surface2Brush}" CornerRadius="8,0,0,8" Padding="10,18,10,10" Spacing="2" BorderBrush="{ThemeResource BorderBrush}" BorderThickness="0,0,1,0">
+                    <TextBlock Text="Settings" Style="{StaticResource TitleText}" Margin="12,0,0,14" />
+                    <RadioButton x:Name="NavPlayback" Style="{StaticResource NavItem}" Content="Playback" Click="OnNavClick" IsChecked="True" />
+                    <RadioButton x:Name="NavAudio" Style="{StaticResource NavItem}" Content="Audio" Click="OnNavClick" />
+                    <RadioButton x:Name="NavPerformance" Style="{StaticResource NavItem}" Content="Performance" Click="OnNavClick" />
+                    <RadioButton x:Name="NavFiles" Style="{StaticResource NavItem}" Content="Files" Click="OnNavClick" />
+                    <RadioButton x:Name="NavInterface" Style="{StaticResource NavItem}" Content="Interface" Click="OnNavClick" />
+                    <RadioButton x:Name="NavSystem" Style="{StaticResource NavItem}" Content="System" Click="OnNavClick" />
+                    <RadioButton x:Name="NavAbout" Style="{StaticResource NavItem}" Content="About" Click="OnNavClick" />
+                </StackPanel>
+                <Button Grid.Column="1" Style="{StaticResource IconButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,12,12,0" Canvas.ZIndex="1"
+                        Click="OnCloseClick" AutomationProperties.Name="Close settings" ToolTipService.ToolTip="Close (Esc)">
+                    <c:Icon Kind="Close" Width="14" Height="14" />
+                </Button>
+
+                <ScrollViewer x:Name="Scroller" Grid.Column="1" Padding="32,4,40,28" ViewChanged="OnScrollerViewChanged">
+                    <StackPanel>
+                        <!-- Playback -->
+                        <TextBlock x:Name="PlaybackSection" Text="Playback" Style="{StaticResource SectionTitle}" />
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel><TextBlock Text="Start playing when a clip opens" Style="{StaticResource RowLabel}" /></StackPanel>
+                            <ToggleSwitch x:Name="AutoplaySwitch" Grid.Column="1" Style="{StaticResource Switch}" Toggled="OnToggled" AutomationProperties.Name="Autoplay" />
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Remember playback position" Style="{StaticResource RowLabel}" />
+                                <TextBlock Text="Reopened clips continue where you left them." Style="{StaticResource RowHint}" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="RememberSwitch" Grid.Column="1" Style="{StaticResource Switch}" Toggled="OnToggled" AutomationProperties.Name="Remember position" />
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Reopen the clips from the last session" Style="{StaticResource RowLabel}" />
+                                <TextBlock Text="Missing files are kept in the list and marked." Style="{StaticResource RowHint}" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="RestoreSwitch" Grid.Column="1" Style="{StaticResource Switch}" Toggled="OnToggled" AutomationProperties.Name="Restore sessions" />
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Short skip" Style="{StaticResource RowLabel}" />
+                                <TextBlock Text="Shift+Left and Shift+Right, and the skip buttons. Arrow keys alone step one frame." Style="{StaticResource RowHint}" />
+                            </StackPanel>
+                            <Button x:Name="ShortSkipButton" Grid.Column="1" Style="{StaticResource ChoiceButton}" Click="OnShortSkipClick" AutomationProperties.Name="Short skip">
+                                <Grid ColumnSpacing="10">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="ShortSkipText" />
+                                    <c:Icon Grid.Column="1" Kind="ChevronDown" Width="12" Height="12" Foreground="{ThemeResource TextTertiaryBrush}" VerticalAlignment="Center" />
+                                </Grid>
+                            </Button>
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Long skip" Style="{StaticResource RowLabel}" />
+                                <TextBlock Text="Ctrl+Left and Ctrl+Right." Style="{StaticResource RowHint}" />
+                            </StackPanel>
+                            <Button x:Name="LongSkipButton" Grid.Column="1" Style="{StaticResource ChoiceButton}" Click="OnLongSkipClick" AutomationProperties.Name="Long skip">
+                                <Grid ColumnSpacing="10">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="LongSkipText" />
+                                    <c:Icon Grid.Column="1" Kind="ChevronDown" Width="12" Height="12" Foreground="{ThemeResource TextTertiaryBrush}" VerticalAlignment="Center" />
+                                </Grid>
+                            </Button>
+                        </Grid>
+
+                        <!-- Audio -->
+                        <TextBlock x:Name="AudioSection" Text="Audio" Style="{StaticResource SectionTitle}" />
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Default volume for track 1 (desktop)" Style="{StaticResource RowLabel}" />
+                                <TextBlock Text="Used for clips you have not adjusted yet, and by Reset volume." Style="{StaticResource RowHint}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                                <Slider x:Name="Track1Slider" Width="160" Minimum="5" Maximum="200" StepFrequency="5" IsThumbToolTipEnabled="False" ValueChanged="OnTrackDefaultChanged" AutomationProperties.Name="Track 1 default volume" />
+                                <TextBlock x:Name="Track1Text" Width="40" Style="{StaticResource SmallText}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <TextBlock Text="Default volume for track 2 (microphone)" Style="{StaticResource RowLabel}" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                                <Slider x:Name="Track2Slider" Width="160" Minimum="5" Maximum="200" StepFrequency="5" IsThumbToolTipEnabled="False" ValueChanged="OnTrackDefaultChanged" AutomationProperties.Name="Track 2 default volume" />
+                                <TextBlock x:Name="Track2Text" Width="40" Style="{StaticResource SmallText}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Audio sync offset" Style="{StaticResource RowLabel}" />
+                                <TextBlock Text="Shifts all audio against the video, for output latency such as Bluetooth headphones." Style="{StaticResource RowHint}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                <Button Style="{StaticResource IconButton}" Click="OnOffsetDown" AutomationProperties.Name="Decrease offset"><c:Icon Kind="Minus" /></Button>
+                                <TextBlock x:Name="OffsetText" Width="64" TextAlignment="Center" Style="{StaticResource BodyText}" VerticalAlignment="Center" Typography.NumeralAlignment="Tabular" />
+                                <Button Style="{StaticResource IconButton}" Click="OnOffsetUp" AutomationProperties.Name="Increase offset"><c:Icon Kind="Plus" /></Button>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Limit the master output" Style="{StaticResource RowLabel}" />
+                                <TextBlock Text="A peak limiter keeps overlapping tracks from clipping. Off: samples above full scale are clipped." Style="{StaticResource RowHint}" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="LimiterSwitch" Grid.Column="1" Style="{StaticResource Switch}" Toggled="OnToggled" AutomationProperties.Name="Limiter" />
+                        </Grid>
+
+                        <!-- Performance -->
+                        <TextBlock x:Name="PerformanceSection" Text="Performance" Style="{StaticResource SectionTitle}" />
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Hardware video decoding" Style="{StaticResource RowLabel}" />
+                                <TextBlock Text="Decodes on the GPU (D3D11VA). Applies to the next clip you open." Style="{StaticResource RowHint}" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="HwDecodeSwitch" Grid.Column="1" Style="{StaticResource Switch}" Toggled="OnToggled" AutomationProperties.Name="Hardware decoding" />
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Hardware encoding for trims" Style="{StaticResource RowLabel}" />
+                                <TextBlock Text="Re-encoded video uses NVENC, AMF or Quick Sync when available." Style="{StaticResource RowHint}" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="HwEncodeSwitch" Grid.Column="1" Style="{StaticResource Switch}" Toggled="OnToggled" AutomationProperties.Name="Hardware encoding" />
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <TextBlock Text="Thumbnails for open clips" Style="{StaticResource RowLabel}" />
+                            <ToggleSwitch x:Name="ThumbsSwitch" Grid.Column="1" Style="{StaticResource Switch}" Toggled="OnToggled" AutomationProperties.Name="Thumbnails" />
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Audio waveforms" Style="{StaticResource RowLabel}" />
+                                <TextBlock Text="Generated once per clip in the background and cached." Style="{StaticResource RowHint}" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="WavesSwitch" Grid.Column="1" Style="{StaticResource Switch}" Toggled="OnToggled" AutomationProperties.Name="Waveforms" />
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Diagnostics overlay" Style="{StaticResource RowLabel}" />
+                                <TextBlock Text="Decoder, dropped frames, A/V drift, audio buffer, CPU and GPU usage. Ctrl+Shift+D." Style="{StaticResource RowHint}" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="DiagSwitch" Grid.Column="1" Style="{StaticResource Switch}" Toggled="OnToggled" AutomationProperties.Name="Diagnostics" />
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <StackPanel>
+                                <TextBlock Text="This PC" Style="{StaticResource RowLabel}" />
+                                <TextBlock x:Name="GpuText" Style="{StaticResource RowHint}" Text="Reading hardware capabilities…" />
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Files -->
+                        <TextBlock x:Name="FilesSection" Text="Files" Style="{StaticResource SectionTitle}" />
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Save trimmed clips to" Style="{StaticResource RowLabel}" />
+                                <TextBlock x:Name="TrimFolderText" Style="{StaticResource RowHint}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                <Button Style="{StaticResource SecondaryButton}" Content="Change" Click="OnTrimFolderClick" />
+                                <Button x:Name="TrimFolderReset" Style="{StaticResource QuietButton}" Content="Use clip folder" Click="OnTrimFolderReset" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Name suffix" Style="{StaticResource RowLabel}" />
+                                <TextBlock Text="clip.mp4 becomes clip_trimmed.mp4, then clip_trimmed_2.mp4. The source is never overwritten." Style="{StaticResource RowHint}" />
+                            </StackPanel>
+                            <TextBox x:Name="SuffixBox" Grid.Column="1" Width="160" Style="{StaticResource FieldTextBox}" TextChanged="OnSuffixChanged" AutomationProperties.Name="Name suffix" />
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <TextBlock Text="Default trim mode" Style="{StaticResource RowLabel}" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Background="{ThemeResource Surface2Brush}" CornerRadius="{StaticResource RadiusMedium}" Padding="2"
+                                        BorderBrush="{ThemeResource BorderBrush}" BorderThickness="1">
+                                <RadioButton x:Name="ModeQuick" Style="{StaticResource SegmentButton}" Content="Quick" GroupName="defaultmode" Checked="OnModeChecked" />
+                                <RadioButton x:Name="ModeSmart" Style="{StaticResource SegmentButton}" Content="Smart" GroupName="defaultmode" Checked="OnModeChecked" />
+                                <RadioButton x:Name="ModeExact" Style="{StaticResource SegmentButton}" Content="Exact" GroupName="defaultmode" Checked="OnModeChecked" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Watch folders" Style="{StaticResource RowLabel}" />
+                                <TextBlock Text="New clips saved here are indexed and announced. Nothing starts playing on its own." Style="{StaticResource RowHint}" />
+                                <StackPanel x:Name="WatchList" Spacing="4" Margin="0,8,0,0" />
+                            </StackPanel>
+                            <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Content="Add folder" Click="OnAddWatchClick" VerticalAlignment="Top" />
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="External editor" Style="{StaticResource RowLabel}" />
+                                <TextBlock x:Name="EditorText" Style="{StaticResource RowHint}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                <Button Style="{StaticResource SecondaryButton}" Content="Choose" Click="OnEditorClick" />
+                                <Button x:Name="EditorClear" Style="{StaticResource QuietButton}" Content="Clear" Click="OnEditorClear" />
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Interface -->
+                        <TextBlock x:Name="InterfaceSection" Text="Interface" Style="{StaticResource SectionTitle}" />
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <TextBlock Text="Theme" Style="{StaticResource RowLabel}" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Background="{ThemeResource Surface2Brush}" CornerRadius="{StaticResource RadiusMedium}" Padding="2"
+                                        BorderBrush="{ThemeResource BorderBrush}" BorderThickness="1">
+                                <RadioButton x:Name="ThemeSystem" Style="{StaticResource SegmentButton}" Content="System" GroupName="theme" Checked="OnThemeChecked" />
+                                <RadioButton x:Name="ThemeDark" Style="{StaticResource SegmentButton}" Content="Dark" GroupName="theme" Checked="OnThemeChecked" />
+                                <RadioButton x:Name="ThemeLight" Style="{StaticResource SegmentButton}" Content="Light" GroupName="theme" Checked="OnThemeChecked" />
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- System -->
+                        <TextBlock x:Name="SystemSection" Text="System" Style="{StaticResource SectionTitle}" />
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="File types" Style="{StaticResource RowLabel}" />
+                                <TextBlock x:Name="AssocText" Style="{StaticResource RowHint}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                <Button x:Name="AssocButton" Style="{StaticResource SecondaryButton}" Click="OnAssocClick" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Default video player" Style="{StaticResource RowLabel}" />
+                                <TextBlock Text="Windows decides which app opens video files. This opens the Default apps page in Settings." Style="{StaticResource RowHint}" />
+                            </StackPanel>
+                            <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Content="Open Default apps" Click="OnDefaultAppsClick" />
+                        </Grid>
+                        <Grid Style="{StaticResource RowGrid}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Cache" Style="{StaticResource RowLabel}" />
+                                <TextBlock x:Name="CacheText" Style="{StaticResource RowHint}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                <Button Style="{StaticResource QuietButton}" Content="Open logs" Click="OnLogsClick" />
+                                <Button Style="{StaticResource SecondaryButton}" Content="Clear cache" Click="OnClearCacheClick" />
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- About -->
+                        <TextBlock x:Name="AboutSection" Text="About" Style="{StaticResource SectionTitle}" />
+                        <TextBlock x:Name="AboutText" Style="{StaticResource SmallText}" TextWrapping="Wrap" LineHeight="19" Margin="0,6,0,0" IsTextSelectionEnabled="True" />
+                        <TextBlock Text="Designed &amp; engineered by hyak" Style="{StaticResource SmallText}" Foreground="{ThemeResource TextTertiaryBrush}" Margin="0,12,0,0" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
